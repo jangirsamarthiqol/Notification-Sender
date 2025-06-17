@@ -1,5 +1,13 @@
 import os
 import streamlit as st
+
+# Set page config first, before any other Streamlit commands
+st.set_page_config(
+    page_title="ACN FCM Notification Sender",
+    page_icon="📱",
+    layout="wide"
+)
+
 import pandas as pd
 import firebase_admin
 from firebase_admin import credentials, firestore, messaging, storage
@@ -234,7 +242,7 @@ def send_notifications(title, body, tokens, batch_size=100, image_url=None, soun
     errors_list = []
 
     st.info(f"📸 Image URL: {image_url or 'None'}")
-    st.info(f"🔊 Sound: {sound_type} - {sound_url or 'Default'}")
+    # st.info(f"🔊 Sound: {sound_type} - {sound_url or 'Default'}")
     
     # Test URLs before sending
     if image_url:
@@ -244,32 +252,32 @@ def send_notifications(title, body, tokens, batch_size=100, image_url=None, soun
         else:
             st.error(f"❌ Image URL is not accessible: {test_result.get('error', 'HTTP ' + str(test_result.get('status_code', 'Unknown')))}")
             
-    if sound_url and sound_type == "custom":
-        test_result = test_url_accessibility(sound_url)
-        if test_result['accessible']:
-            st.success(f"✅ Sound URL is accessible ({test_result['content_type']})")
-        else:
-            st.error(f"❌ Sound URL is not accessible: {test_result.get('error', 'HTTP ' + str(test_result.get('status_code', 'Unknown')))}")
+    # if sound_url and sound_type == "custom":
+    #     test_result = test_url_accessibility(sound_url)
+    #     if test_result['accessible']:
+    #         st.success(f"✅ Sound URL is accessible ({test_result['content_type']})")
+    #     else:
+    #         st.error(f"❌ Sound URL is not accessible: {test_result.get('error', 'HTTP ' + str(test_result.get('status_code', 'Unknown')))}")
 
     for i in range(0, len(tokens), batch_size):
         batch = tokens[i:i+batch_size]
         for doc_ref, token, is_array in batch:
             try:
                 # Determine sound configuration based on type
-                if sound_type == "bundled" and sound_url:
-                    # Extract filename from URL or use as-is if it's already a filename
-                    sound_filename = sound_url.split('/')[-1] if '/' in sound_url else sound_url
-                    # Remove extension for iOS (iOS expects filename without extension)
-                    ios_sound = sound_filename.rsplit('.', 1)[0] + '.wav'
-                    android_sound = sound_filename
-                elif sound_type == "custom":
-                    # Use default sound but send URL in data for app handling
-                    ios_sound = "default"
-                    android_sound = "default"
-                else:
-                    # Default system sound
-                    ios_sound = "default"
-                    android_sound = "default"
+                # if sound_type == "bundled" and sound_url:
+                #     # Extract filename from URL or use as-is if it's already a filename
+                #     sound_filename = sound_url.split('/')[-1] if '/' in sound_url else sound_url
+                #     # Remove extension for iOS (iOS expects filename without extension)
+                #     ios_sound = sound_filename.rsplit('.', 1)[0] + '.wav'
+                #     android_sound = sound_filename
+                # elif sound_type == "custom":
+                #     # Use default sound but send URL in data for app handling
+                #     ios_sound = "default"
+                #     android_sound = "default"
+                # else:
+                #     # Default system sound
+                ios_sound = "default"
+                android_sound = "default"
 
                 # Enhanced data payload for app-side handling
                 data_payload = {
@@ -277,49 +285,49 @@ def send_notifications(title, body, tokens, batch_size=100, image_url=None, soun
                     "body": body,
                     "click_action": "FLUTTER_NOTIFICATION_CLICK",
                     "type": "rich_notification",
-                    "sound_type": sound_type
+                    # "sound_type": sound_type
                 }
                 
                 # Add media URLs to data if available
                 if image_url:
                     data_payload["image_url"] = image_url
-                if sound_url:
-                    data_payload["sound_url"] = sound_url
-                    if sound_type == "bundled":
-                        data_payload["sound_filename"] = sound_filename
+                # if sound_url:
+                #     data_payload["sound_url"] = sound_url
+                #     if sound_type == "bundled":
+                #         data_payload["sound_filename"] = sound_filename
 
                 # Method 1: Send data-only notification for custom audio handling
-                if sound_type == "custom" and sound_url:
-                    data_only_payload = {
-                        **data_payload,
-                        "notification_type": "silent_with_custom_audio",
-                        "custom_audio_url": sound_url
-                    }
+                # if sound_type == "custom" and sound_url:
+                #     data_only_payload = {
+                #         **data_payload,
+                #         "notification_type": "silent_with_custom_audio",
+                #         "custom_audio_url": sound_url
+                #     }
                     
-                    data_message = messaging.Message(
-                        token=token,
-                        data=data_only_payload,
-                        android=messaging.AndroidConfig(
-                            priority="high",
-                            data=data_only_payload
-                        ),
-                        apns=messaging.APNSConfig(
-                            payload=messaging.APNSPayload(
-                                aps=messaging.Aps(
-                                    content_available=True,
-                                    mutable_content=True
-                                ),
-                                custom_data=data_only_payload
-                            )
-                        )
-                    )
+                #     data_message = messaging.Message(
+                #         token=token,
+                #         data=data_only_payload,
+                #         android=messaging.AndroidConfig(
+                #             priority="high",
+                #             data=data_only_payload
+                #         ),
+                #         apns=messaging.APNSConfig(
+                #             payload=messaging.APNSPayload(
+                #                 aps=messaging.Aps(
+                #                     content_available=True,
+                #                     mutable_content=True
+                #                 ),
+                #                 custom_data=data_only_payload
+                #             )
+                #         )
+                #     )
                     
-                    # Send data-only message first
-                    data_response = messaging.send(data_message)
-                    st.write(f"📡 Sent data notification for custom audio: {token[:8]}...")
+                #     # Send data-only message first
+                #     data_response = messaging.send(data_message)
+                #     st.write(f"📡 Sent data notification for custom audio: {token[:8]}...")
                     
-                    # Small delay to ensure data message is processed first
-                    time.sleep(0.1)
+                #     # Small delay to ensure data message is processed first
+                #     time.sleep(0.1)
 
                 # Method 2: Send display notification with proper sound configuration
                 notification = messaging.Notification(
@@ -365,18 +373,56 @@ def send_notifications(title, body, tokens, batch_size=100, image_url=None, soun
 
                 apns_payload = messaging.APNSPayload(aps=aps)
                 if image_url:
+                    # React Native specific payload structure for both foreground and background
                     apns_payload.custom_data = {
-                        "fcm_options": {"image": image_url},
-                        **data_payload
+                        "notification": {
+                            "title": title,
+                            "body": body,
+                            "image": image_url,
+                            "android": {
+                                "imageUrl": image_url,
+                                "priority": "high",
+                                "channelId": "high_importance_channel"
+                            },
+                            "ios": {
+                                "imageUrl": image_url,
+                                "attachments": [{
+                                    "url": image_url,
+                                    "type": "image"
+                                }]
+                            }
+                        },
+                        "data": {
+                            "title": title,
+                            "body": body,
+                            "image": image_url,
+                            "imageUrl": image_url,
+                            "type": "rich_notification",
+                            "foreground": True,
+                            "background": True
+                        }
                     }
                 else:
-                    apns_payload.custom_data = data_payload
+                    apns_payload.custom_data = {
+                        "notification": {
+                            "title": title,
+                            "body": body
+                        },
+                        "data": {
+                            "title": title,
+                            "body": body,
+                            "type": "rich_notification"
+                        }
+                    }
 
                 apns_config = messaging.APNSConfig(
                     payload=apns_payload,
                     headers={
                         "apns-priority": "10",
-                        "apns-push-type": "alert"
+                        "apns-push-type": "alert",
+                        "apns-expiration": "0",
+                        "apns-collapse-id": "rich_notification",
+                        "apns-content-available": "1"
                     }
                 )
 
@@ -430,12 +476,6 @@ def send_notifications(title, body, tokens, batch_size=100, image_url=None, soun
     return summary, errors_list
 
 # --- Streamlit UI ---
-
-st.set_page_config(
-    page_title="ACN FCM Notification Sender",
-    page_icon="📱",
-    layout="wide"
-)
 
 st.title("📱 ACN Agent FCM Notification Sender")
 
@@ -509,9 +549,9 @@ with tab3:
     # Initialize variables
     uploaded_image = None
     selected_image = None
-    uploaded_sound = None
-    selected_sound = None
-    sound_type = "default"
+    # uploaded_sound = None
+    # selected_sound = None
+    # sound_type = "default"
     
     col1, col2 = st.columns(2)
     
@@ -555,83 +595,36 @@ with tab3:
     
     with col2:
         st.write("**🔊 Sound**")
+        st.info("Audio functionality is currently disabled")
         
-        # Sound type selection
-        sound_type = st.radio(
-            "Sound Type",
-            ["default", "bundled", "custom"],
-            help="""
-            • Default: Use system notification sound
-            • Bundled: Use sound file bundled with your app
-            • Custom: Send URL to app for custom handling
-            """
-        )
+        # # Sound type selection
+        # sound_type = st.radio(
+        #     "Sound Type",
+        #     ["default", "bundled", "custom"],
+        #     help="""
+        #     • Default: Use system notification sound
+        #     • Bundled: Use sound file bundled with your app
+        #     • Custom: Send URL to app for custom handling
+        #     """
+        # )
         
-        uploaded_sound = None
-        selected_sound = None
+        # uploaded_sound = None
+        # selected_sound = None
         
-        if sound_type != "default":
-            # Upload new sound
-            uploaded_sound = st.file_uploader(
-                "Upload new sound", 
-                type=["mp3", "wav", "ogg", "m4a"],
-                help="Upload a sound file for the notification"
-            )
-            
-            if uploaded_sound:
-                st.audio(uploaded_sound)
-            
-            # Select from existing sounds
-            sound_files = [""] + [f for f in available_files if f.lower().endswith(('.mp3', '.wav', '.ogg', '.m4a'))]
-            
-            selected_sound = st.selectbox(
-                "Or select existing sound", 
-                sound_files,
-                help="Choose from sounds already uploaded to Firebase Storage"
-            )
-            
-            if selected_sound:
-                # Get proper URL
-                sound_url, url_type = get_proper_storage_url(selected_sound)
-                if sound_url:
-                    st.success(f"✅ Got {url_type}")
-                    st.code(sound_url)
-                    
-                    # Test the URL
-                    result = test_url_accessibility(sound_url)
-                    if result['accessible']:
-                        st.success("✅ Sound URL is accessible")
-                    else:
-                        st.error("❌ Sound URL is not accessible")
-                        
-                    # Show filename for bundled sounds
-                    if sound_type == "bundled":
-                        filename = sound_url.split('/')[-1]
-                        st.info(f"📁 For bundled sounds, add '{filename}' to your app's assets")
-                else:
-                    st.error(f"❌ Could not get URL: {url_type}")
+        # if sound_type != "default":
+        #     # Upload new sound
+        #     uploaded_sound = st.file_uploader(
+        #         "Upload new sound", 
+        #         type=["mp3", "wav", "ogg", "m4a"],
+        #         help="Upload a sound file for the notification"
+        #     )
         
         # Audio instructions
         with st.expander("🔊 Audio Implementation Guide", expanded=False):
             st.markdown("""
-            **📱 Important: Audio in Push Notifications**
+            **📱 Audio functionality is currently disabled**
             
-            **Default Sound**: Uses system notification sound (always works)
-            
-            **Bundled Sound**: 
-            - Add sound files to your app bundle
-            - iOS: Add .wav files to project (max 30 seconds)
-            - Android: Add to `android/app/src/main/res/raw/`
-            - Reference by filename (without extension for iOS)
-            
-            **Custom Sound**:
-            - Sends URL in notification data
-            - Your app must handle audio playback
-            - Requires app-side implementation
-            - Use for dynamic/remote audio files
-            
-            **Note**: FCM doesn't support remote audio URLs directly. 
-            Custom sounds require app-side handling.
+            This feature will be re-enabled in a future update.
             """)
 
 with tab1:
@@ -744,26 +737,27 @@ if send_button:
             st.stop()
     
     # Process sound - get sound_type from locals or default
-    current_sound_type = locals().get('sound_type', 'default')
+    # current_sound_type = locals().get('sound_type', 'default')
+    current_sound_type = "default"
     
-    if current_sound_type != "default":
-        if 'uploaded_sound' in locals() and uploaded_sound:
-            with st.spinner("⬆️ Uploading new sound..."):
-                final_sound_url = upload_file_to_storage(uploaded_sound, storage_folder)
-        elif 'selected_sound' in locals() and selected_sound:
-            final_sound_url, url_type = get_proper_storage_url(selected_sound)
-            if final_sound_url:
-                st.info(f"🔊 Using existing sound ({current_sound_type}, {url_type}): {selected_sound}")
-            else:
-                st.error(f"❌ Could not get sound URL: {url_type}")
-                if current_sound_type == "bundled":
-                    st.error("❌ Bundled sound requires valid sound file")
-                    st.stop()
-        elif current_sound_type == "bundled":
-            st.error("❌ Bundled sound type requires a sound file selection")
-            st.stop()
-    else:
-        st.info("🔊 Using default system notification sound")
+    # if current_sound_type != "default":
+    #     if 'uploaded_sound' in locals() and uploaded_sound:
+    #         with st.spinner("⬆️ Uploading new sound..."):
+    #             final_sound_url = upload_file_to_storage(uploaded_sound, storage_folder)
+    #     elif 'selected_sound' in locals() and selected_sound:
+    #         final_sound_url, url_type = get_proper_storage_url(selected_sound)
+    #         if final_sound_url:
+    #             st.info(f"🔊 Using existing sound ({current_sound_type}, {url_type}): {selected_sound}")
+    #         else:
+    #             st.error(f"❌ Could not get sound URL: {url_type}")
+    #             if current_sound_type == "bundled":
+    #                 st.error("❌ Bundled sound requires valid sound file")
+    #                 st.stop()
+    #     elif current_sound_type == "bundled":
+    #         st.error("❌ Bundled sound type requires a sound file selection")
+    #         st.stop()
+    # else:
+    st.info("🔊 Using default system notification sound")
     
     # Fetch tokens
     with st.spinner("🔍 Fetching notification tokens..."):
@@ -788,8 +782,8 @@ if send_button:
             tokens=tokens, 
             batch_size=batch_size,
             image_url=final_image_url, 
-            sound_url=final_sound_url,
-            sound_type=current_sound_type
+            # sound_url=final_sound_url,
+            # sound_type=current_sound_type
         )
     
     progress_bar.progress(100)
@@ -823,12 +817,13 @@ if send_button:
         
         if final_image_url:
             st.info("📸 Notifications included custom image")
-        if current_sound_type == "default":
-            st.info("🔊 Notifications used default system sound")
-        elif current_sound_type == "bundled" and final_sound_url:
-            st.info("🔊 Notifications referenced bundled app sound")
-        elif current_sound_type == "custom" and final_sound_url:
-            st.info("🔊 Notifications included custom sound URL for app handling")
+        st.info("🔊 Notifications used default system sound")
+        # if current_sound_type == "default":
+        #     st.info("🔊 Notifications used default system sound")
+        # elif current_sound_type == "bundled" and final_sound_url:
+        #     st.info("🔊 Notifications referenced bundled app sound")
+        # elif current_sound_type == "custom" and final_sound_url:
+        #     st.info("🔊 Notifications included custom sound URL for app handling")
     else:
         st.error("❌ No notifications were sent successfully.")
 
