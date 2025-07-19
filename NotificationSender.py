@@ -62,7 +62,7 @@ def init_firebase():
             }
 
             cred = credentials.Certificate(cred_info)
-            firebase_admin.initialize_app(cred, {'storageBucket': 'acn-resale-inventories-dde03.firebasestorage.app'})
+            firebase_admin.initialize_app(cred, {'storageBucket': 'iqol-crm.appspot.com'})
         return firestore.client(), storage.bucket()
     except Exception as e:
         st.error(f"Failed to initialize Firebase: {str(e)}")
@@ -89,7 +89,7 @@ def fetch_tokens_for_cpids(cpids):
     """
     tokens = []
     for chunk in chunk_list(cpids, 10):
-        query = db.collection('agents').where('cpId', 'in', chunk)
+        query = db.collection('acnAgents').where('cpId', 'in', chunk)
         docs = query.stream()
         for doc in docs:
             data = doc.to_dict()
@@ -166,7 +166,7 @@ def get_proper_storage_url(file_path):
     except Exception as e:
         return None, f"Error getting URL: {str(e)}"
 
-def upload_file_to_storage(file, folder="test"):
+def upload_file_to_storage(file, folder="acn-notif-media"):
     """Upload a file to Firebase Storage and return the proper download URL."""
     try:
         file_path = f"{folder}/{file.name}"
@@ -487,10 +487,10 @@ Invalid tokens are automatically pruned from the database.
 
 # Configuration
 batch_size = 100  # Default batch size
-storage_folder = "test"  # Default storage folder
+storage_folder = "acn-notif-media"  # Default storage folder
 
 # Main interface
-tab1, tab2, tab3 = st.tabs(["📝 Compose", "📊 Recipients", "🎨 Media"])
+tab1, tab2 = st.tabs(["📝 Compose", "📊 Recipients"])
 
 with tab2:
     st.subheader("📊 Select Recipients")
@@ -540,92 +540,92 @@ with tab2:
                 cpid_list = [cpid.strip() for cpid in manual_cpids.split('\n') if cpid.strip()]
                 st.info(f"📝 {len(cpid_list)} cpIds entered manually")
 
-with tab3:
-    st.subheader("🎨 Media Files")
+# # with tab3:
+#     st.subheader("🎨 Media Files")
     
-    # Get available files first
-    available_files = list_storage_files(storage_folder)
+#     # Get available files first
+#     available_files = list_storage_files(storage_folder)
     
-    # Initialize variables
-    uploaded_image = None
-    selected_image = None
-    # uploaded_sound = None
-    # selected_sound = None
-    # sound_type = "default"
+#     # Initialize variables
+#     uploaded_image = None
+#     selected_image = None
+#     # uploaded_sound = None
+#     # selected_sound = None
+#     # sound_type = "default"
     
-    col1, col2 = st.columns(2)
+#     col1, col2 = st.columns(2)
     
-    with col1:
-        st.write("**🖼️ Image**")
+#     with col1:
+#         st.write("**🖼️ Image**")
         
-        # Upload new image
-        uploaded_image = st.file_uploader(
-            "Upload new image", 
-            type=["jpg", "jpeg", "png", "gif"],
-            help="Upload an image file for the notification"
-        )
+#         # Upload new image
+#         uploaded_image = st.file_uploader(
+#             "Upload new image", 
+#             type=["jpg", "jpeg", "png", "gif"],
+#             help="Upload an image file for the notification"
+#         )
         
-        if uploaded_image:
-            st.image(uploaded_image, caption="Preview", width=200)
+#         if uploaded_image:
+#             st.image(uploaded_image, caption="Preview", width=200)
         
-        # Select from existing images
-        image_files = [""] + [f for f in available_files if f.lower().endswith(('.jpg', '.jpeg', '.png', '.gif'))]
+#         # Select from existing images
+#         image_files = [""] + [f for f in available_files if f.lower().endswith(('.jpg', '.jpeg', '.png', '.gif'))]
         
-        selected_image = st.selectbox(
-            "Or select existing image", 
-            image_files,
-            help="Choose from images already uploaded to Firebase Storage"
-        )
+#         selected_image = st.selectbox(
+#             "Or select existing image", 
+#             image_files,
+#             help="Choose from images already uploaded to Firebase Storage"
+#         )
         
-        if selected_image:
-            # Get proper URL
-            image_url, url_type = get_proper_storage_url(selected_image)
-            if image_url:
-                st.success(f"✅ Got {url_type}")
-                st.code(image_url)
+#         if selected_image:
+#             # Get proper URL
+#             image_url, url_type = get_proper_storage_url(selected_image)
+#             if image_url:
+#                 st.success(f"✅ Got {url_type}")
+#                 st.code(image_url)
                 
-                # Test the URL
-                result = test_url_accessibility(image_url)
-                if result['accessible']:
-                    st.success("✅ Image URL is accessible")
-                else:
-                    st.error("❌ Image URL is not accessible")
-            else:
-                st.error(f"❌ Could not get URL: {url_type}")
+#                 # Test the URL
+#                 result = test_url_accessibility(image_url)
+#                 if result['accessible']:
+#                     st.success("✅ Image URL is accessible")
+#                 else:
+#                     st.error("❌ Image URL is not accessible")
+#             else:
+#                 st.error(f"❌ Could not get URL: {url_type}")
     
-    with col2:
-        st.write("**🔊 Sound**")
-        st.info("Audio functionality is currently disabled")
+#     with col2:
+#         st.write("**🔊 Sound**")
+#         st.info("Audio functionality is currently disabled")
         
-        # # Sound type selection
-        # sound_type = st.radio(
-        #     "Sound Type",
-        #     ["default", "bundled", "custom"],
-        #     help="""
-        #     • Default: Use system notification sound
-        #     • Bundled: Use sound file bundled with your app
-        #     • Custom: Send URL to app for custom handling
-        #     """
-        # )
+#         # # Sound type selection
+#         # sound_type = st.radio(
+#         #     "Sound Type",
+#         #     ["default", "bundled", "custom"],
+#         #     help="""
+#         #     • Default: Use system notification sound
+#         #     • Bundled: Use sound file bundled with your app
+#         #     • Custom: Send URL to app for custom handling
+#         #     """
+#         # )
         
-        # uploaded_sound = None
-        # selected_sound = None
+#         # uploaded_sound = None
+#         # selected_sound = None
         
-        # if sound_type != "default":
-        #     # Upload new sound
-        #     uploaded_sound = st.file_uploader(
-        #         "Upload new sound", 
-        #         type=["mp3", "wav", "ogg", "m4a"],
-        #         help="Upload a sound file for the notification"
-        #     )
+#         # if sound_type != "default":
+#         #     # Upload new sound
+#         #     uploaded_sound = st.file_uploader(
+#         #         "Upload new sound", 
+#         #         type=["mp3", "wav", "ogg", "m4a"],
+#         #         help="Upload a sound file for the notification"
+#         #     )
         
-        # Audio instructions
-        with st.expander("🔊 Audio Implementation Guide", expanded=False):
-            st.markdown("""
-            **📱 Audio functionality is currently disabled**
+#         # Audio instructions
+#         with st.expander("🔊 Audio Implementation Guide", expanded=False):
+#             st.markdown("""
+#             **📱 Audio functionality is currently disabled**
             
-            This feature will be re-enabled in a future update.
-            """)
+#             This feature will be re-enabled in a future update.
+#             """)
 
 with tab1:
     st.subheader("📝 Notification Content")
@@ -834,3 +834,5 @@ st.markdown("""
     <p>📱 ACN Agent FCM Notification Sender | Built with Streamlit & Firebase</p>
 </div>
 """, unsafe_allow_html=True)
+
+
