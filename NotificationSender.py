@@ -144,7 +144,8 @@ def fetch_all_tokens_directly():
     for i, doc in enumerate(docs):
         data = doc.to_dict()
         raw = data.get('fsmToken')
-        doc_ref = doc.reference
+        # Use None for doc_ref to keep return value pickle-serializable
+        doc_ref = None
         
         if isinstance(raw, str) and raw.strip():
             token_type = detect_token_type(raw.strip())
