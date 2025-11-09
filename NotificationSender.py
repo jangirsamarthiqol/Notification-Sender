@@ -4,9 +4,48 @@ from dotenv import load_dotenv
 import concurrent.futures
 import threading
 from datetime import datetime
+from pathlib import Path
 
 # Load environment variables from .env file
 load_dotenv()
+
+# --- Local Data Storage ---
+DATA_DIR = Path("notification_data")
+DATA_DIR.mkdir(exist_ok=True)
+
+COHORTS_FILE = DATA_DIR / "cohorts.json"
+CAMPAIGNS_FILE = DATA_DIR / "campaigns.json"
+
+def load_cohorts():
+    """Load cohorts from local JSON - {cohort_name: [cp_ids]}"""
+    if COHORTS_FILE.exists():
+        with open(COHORTS_FILE, 'r') as f:
+            return json.load(f)
+    return {}
+
+def save_cohorts(cohorts):
+    """Save cohorts to local JSON"""
+    with open(COHORTS_FILE, 'w') as f:
+        json.dump(cohorts, f, indent=2)
+
+def load_campaigns():
+    """Load campaign history from local JSON"""
+    if CAMPAIGNS_FILE.exists():
+        with open(CAMPAIGNS_FILE, 'r') as f:
+            return json.load(f)
+    return []
+
+def save_campaign(campaign_data):
+    """Save a campaign to local JSON"""
+    campaigns = load_campaigns()
+    campaigns.append(campaign_data)
+    with open(CAMPAIGNS_FILE, 'w') as f:
+        json.dump(campaigns, f, indent=2)
+
+def generate_campaign_id():
+    """Generate unique campaign ID"""
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    return f"campaign_{timestamp}"
 
 # Set page config first, before any other Streamlit commands
 st.set_page_config(
@@ -174,12 +213,10 @@ def fetch_all_cpids():
             cpids.add(str(data['cpId']))
     return list(cpids)
 
-def send_single_notification(doc_ref, token, is_array, token_type, title, body, click_action="FLUTTER_NOTIFICATION_CLICK", route="/", screen="home"):
-    """Send a single notification with simplified, reliable configuration.
-    Only include platform-specific configs to avoid cross-platform auth errors.
-    """
+def send_single_notification(doc_ref, token, is_array, token_type, title, body, click_action="FLUTTER_NOTIFICATION_CLICK", route="/", screen="home", campaign_id=None, campaign_name=None, cohort_tags=None):
+    """Send a single notification with campaign tracking"""
     try:
-        # Simplified data payload - focus on basic functionality first
+        # Data payload with campaign tracking
         data_payload = {
             "title": title,
             "body": body,
@@ -189,11 +226,21 @@ def send_single_notification(doc_ref, token, is_array, token_type, title, body, 
             "from_notification": "true",
             "timestamp": str(int(time.time()))
         }
+        
+        # Add campaign tracking for Firebase Analytics
+        if campaign_id:
+            data_payload["campaign_id"] = campaign_id
+            data_payload["message_id"] = campaign_id  # Firebase Analytics key
+        if campaign_name:
+            data_payload["campaign_name"] = campaign_name
+            data_payload["message_name"] = campaign_name  # Firebase Analytics key
+        if cohort_tags:
+            data_payload["cohort_tags"] = ",".join(cohort_tags)
 
         # Basic notification
         notification = messaging.Notification(title=title, body=body)
 
-        # Simplified Android config
+        # Android config
         android_config = messaging.AndroidConfig(
             notification=messaging.AndroidNotification(
                 title=title,
@@ -265,6 +312,7 @@ def send_single_notification(doc_ref, token, is_array, token_type, title, body, 
     except FirebaseError as e:
         error_code = getattr(e, 'code', '').lower()
         error_message = str(e).lower()
+        st.write(f"🔍 Debug: FirebaseError for token {token[:12]}... - Code: {error_code}, Message: {error_message}")
         
         # Enhanced error handling for different token types
         should_prune = False
@@ -285,16 +333,19 @@ def send_single_notification(doc_ref, token, is_array, token_type, title, body, 
             return False, None, ("error", f"FCM error: {e}")
             
     except Exception as e:
+        st.write(f"🔍 Debug: Unexpected error for token {token[:12] if token else 'unknown'}... - {type(e).__name__}: {str(e)}")
         return False, None, ("error", f"Unexpected error: {e}")
 
-def send_notifications_parallel(title, body, tokens, batch_size=100, max_workers=10, click_action="FLUTTER_NOTIFICATION_CLICK", route="/", screen="home"):
-    """Send notifications in parallel for better performance."""
+def send_notifications_parallel(title, body, tokens, batch_size=100, max_workers=10, click_action="FLUTTER_NOTIFICATION_CLICK", route="/", screen="home", campaign_id=None, campaign_name=None, cohort_tags=None):
+    """Send notifications in parallel with campaign tracking"""
     summary = {"success": 0, "pruned": 0, "errors": 0, "ios_success": 0, "android_success": 0, "fcm_success": 0}
     errors_list = []
     
     # Debug information
     st.write(f"🔍 Debug: Starting parallel send with {len(tokens)} tokens, batch_size={batch_size}, max_workers={max_workers}")
     st.write(f"🔍 Debug: Click action={click_action}, route={route}, screen={screen}")
+    if campaign_id:
+        st.write(f"🔍 Debug: Campaign ID={campaign_id}, Name={campaign_name}, Cohorts={cohort_tags}")
     
     # Create progress tracking
     total_tokens = len(tokens)
@@ -310,7 +361,7 @@ def send_notifications_parallel(title, body, tokens, batch_size=100, max_workers
         for doc_ref, token, is_array, token_type in batch_tokens:
             try:
                 success, response, error_info = send_single_notification(
-                    doc_ref, token, is_array, token_type, title, body, click_action, route, screen
+                    doc_ref, token, is_array, token_type, title, body, click_action, route, screen, campaign_id, campaign_name, cohort_tags
                 )
             except Exception as e:
                 st.write(f"🔍 Debug: Exception in send_single_notification: {str(e)}")
@@ -495,150 +546,281 @@ with st.sidebar:
                                    help="Key for collapsing similar notifications")
 
 # Main content tabs
-tab1, tab2, tab3 = st.tabs(["📝 Compose", "📊 Recipients", "📈 Analytics"])
+tab1, tab2, tab3, tab4 = st.tabs(["📝 Compose", "📊 Recipients", "🏷️ Cohorts", "📈 Analytics"])
+
+# Cohort Management Tab
+with tab3:
+    st.subheader("🏷️ Cohort Management")
+    
+    # Load existing cohorts
+    cohorts = load_cohorts()
+    
+    # Create new cohort
+    st.markdown("### ➕ Create Cohort")
+    col1, col2 = st.columns([4, 1])
+    with col1:
+        new_cohort = st.text_input("Cohort name:", placeholder="e.g., North Bangalore, Premium Agents")
+    with col2:
+        if st.button("Create", type="primary", use_container_width=True):
+            if new_cohort and new_cohort not in cohorts:
+                cohorts[new_cohort] = []
+                save_cohorts(cohorts)
+                st.success(f"✅ Created")
+                st.rerun()
+            elif new_cohort in cohorts:
+                st.error("Already exists!")
+            else:
+                st.error("Enter name!")
+    
+    # Manage existing cohorts
+    if cohorts:
+        st.markdown("---")
+        st.markdown("### 📋 Manage Cohorts")
+        
+        # Show all cohorts with counts in a visual grid
+        st.markdown("**Your Cohorts:**")
+        cols = st.columns(min(len(cohorts), 4))
+        for idx, (name, ids) in enumerate(cohorts.items()):
+            with cols[idx % 4]:
+                st.metric(label=name, value=f"{len(ids)} IDs", delta=None)
+        
+        st.markdown("---")
+        
+        cohort_to_edit = st.selectbox("Select to edit:", list(cohorts.keys()))
+        
+        if cohort_to_edit:
+            current_cp_ids = cohorts[cohort_to_edit]
+            
+            st.markdown(f"**Edit CP IDs for: {cohort_to_edit}**")
+            
+            # Single editable text area with all CP IDs
+            edited_cp_ids = st.text_area(
+                f"CP IDs ({len(current_cp_ids)}):",
+                value="\n".join(current_cp_ids),
+                height=300,
+                key=f"edit_{cohort_to_edit}",
+                help="Edit CP IDs directly. One per line or comma-separated."
+            )
+            
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                if st.button("💾 Save Changes", use_container_width=True, type="primary", key=f"save_{cohort_to_edit}"):
+                    # Parse the edited IDs
+                    new_ids = []
+                    for line in edited_cp_ids.replace(',', '\n').split('\n'):
+                        cp_id = line.strip()
+                        if cp_id:
+                            new_ids.append(cp_id)
+                    
+                    # Remove duplicates while preserving order
+                    seen = set()
+                    unique_ids = []
+                    for cp_id in new_ids:
+                        if cp_id not in seen:
+                            seen.add(cp_id)
+                            unique_ids.append(cp_id)
+                    
+                    cohorts[cohort_to_edit] = unique_ids
+                    save_cohorts(cohorts)
+                    st.success(f"✅ Saved {len(unique_ids)} CP IDs")
+                    st.rerun()
+            with col2:
+                if st.button(f"🗑️ Clear All", use_container_width=True, key=f"clear_{cohort_to_edit}"):
+                    cohorts[cohort_to_edit] = []
+                    save_cohorts(cohorts)
+                    st.success("✅ Cleared")
+                    st.rerun()
+            with col3:
+                if st.button(f"❌ Delete Cohort", use_container_width=True, key=f"del_{cohort_to_edit}"):
+                    del cohorts[cohort_to_edit]
+                    save_cohorts(cohorts)
+                    st.success("Deleted")
+                    st.rerun()
+    else:
+        st.info("💡 No cohorts yet. Create one above!")
 
 with tab2:
     st.subheader("📊 Select Recipients")
     
     # Recipient selection method
     recipient_method = st.radio(
-        "Choose recipient selection method:",
-        ["📢 Send to All Agents", "📁 Upload CSV File", "✏️ Manual Entry"],
+        "Method:",
+        ["📢 All Agents", "🏷️ Cohorts", "📁 CSV File", "✏️ Manual"],
         horizontal=True
     )
     
-    if recipient_method == "📢 Send to All Agents":
-        st.info("📋 Will fetch all agent tokens directly from the database for faster processing")
-        
-        # Show database stats
-        if st.button("📊 Show Database Statistics"):
-            with st.spinner("🔍 Analyzing database..."):
-                try:
-                    all_tokens = fetch_all_tokens_directly()
-                    ios_count = sum(1 for _, _, _, token_type in all_tokens if token_type == "ios")
-                    android_count = sum(1 for _, _, _, token_type in all_tokens if token_type == "android")
-                    fcm_count = sum(1 for _, _, _, token_type in all_tokens if token_type == "fcm")
-                    unknown_count = sum(1 for _, _, _, token_type in all_tokens if token_type == "unknown")
-                    
-                    col1, col2, col3, col4, col5 = st.columns(5)
-                    with col1:
-                        st.metric("📱 Total Tokens", len(all_tokens))
-                    with col2:
-                        st.metric("🍎 iOS Tokens", ios_count)
-                    with col3:
-                        st.metric("🤖 Android Tokens", android_count)
-                    with col4:
-                        st.metric("🔥 FCM Tokens", fcm_count)
-                    with col5:
-                        st.metric("❓ Unknown Type", unknown_count)
-                except Exception as e:
-                    st.error(f"❌ Error fetching database stats: {e}")
+    if recipient_method == "📢 All Agents":
+        st.success("✅ Will send to all agents in database")
     
-    elif recipient_method == "📁 Upload CSV File":
-        st.write("**📁 Upload CSV File**")
-        uploaded_csv = st.file_uploader("Select CSV file with cpId column", type="csv", 
-                                      help="CSV file should contain a 'cpId' column with agent IDs")
+    elif recipient_method == "🏷️ Cohorts":
+        cohorts = load_cohorts()
+        
+        if cohorts:
+            # Display all cohorts with counts
+            st.markdown("**Available Cohorts:**")
+            cols = st.columns(min(len(cohorts), 4))
+            for idx, (cohort_name, cp_ids) in enumerate(cohorts.items()):
+                with cols[idx % 4]:
+                    st.metric(cohort_name, f"{len(cp_ids)} IDs")
+            
+            st.markdown("---")
+            
+            # Format cohort options with counts
+            cohort_options = [f"{name} ({len(ids)})" for name, ids in cohorts.items()]
+            cohort_names = list(cohorts.keys())
+            
+            selected_display = st.multiselect(
+                "Select cohorts:",
+                cohort_options
+            )
+            
+            # Extract actual cohort names from selection
+            selected_cohorts = []
+            for display in selected_display:
+                for name in cohort_names:
+                    if display.startswith(name + " ("):
+                        selected_cohorts.append(name)
+                        break
+            
+            if len(selected_cohorts) > 1:
+                logic_type = st.radio(
+                    "Logic:",
+                    ["OR (any)", "AND (all)"],
+                    horizontal=True
+                )
+            else:
+                logic_type = "OR (any)"
+            
+            if selected_cohorts:
+                # Get CP IDs based on logic
+                if "AND" in logic_type:
+                    cp_ids_sets = [set(cohorts[c]) for c in selected_cohorts]
+                    selected_cp_ids = list(set.intersection(*cp_ids_sets)) if cp_ids_sets else []
+                else:
+                    selected_cp_ids = []
+                    for cohort_name in selected_cohorts:
+                        selected_cp_ids.extend(cohorts[cohort_name])
+                    selected_cp_ids = list(set(selected_cp_ids))
+                
+                if selected_cp_ids:
+                    st.success(f"✅ **{len(selected_cp_ids)} CP IDs** will receive notification")
+                    
+                    # Show breakdown by cohort
+                    with st.expander("📊 View CP ID breakdown"):
+                        for cohort_name in selected_cohorts:
+                            cohort_ids = cohorts[cohort_name]
+                            st.write(f"**{cohort_name}**: {len(cohort_ids)} IDs")
+                            st.code(", ".join(cohort_ids[:20]) + ("..." if len(cohort_ids) > 20 else ""))
+                else:
+                    st.warning("⚠️ No CP IDs found")
+        else:
+            st.warning("⚠️ Create cohorts in Cohorts tab first")
+    
+    elif recipient_method == "📁 CSV File":
+        uploaded_csv = st.file_uploader("Upload CSV with cpId column", type="csv")
         if uploaded_csv:
             try:
                 df = pd.read_csv(uploaded_csv)
-                
-                # Show preview
-                st.write("**📋 Preview:**")
-                st.dataframe(df.head(10), use_container_width=True)
+                st.dataframe(df.head(5), use_container_width=True)
                 
                 if 'cpId' in df.columns:
                     valid_cpids = df['cpId'].dropna().shape[0]
-                    st.success(f"✅ Found {valid_cpids} valid cpIds in CSV")
-                    
-                    # Show some statistics
-                    if valid_cpids > 0:
-                        st.info(f"📊 CSV contains {len(df)} total rows, {valid_cpids} valid cpIds")
-                    else:
-                        st.error("❌ CSV must contain a 'cpId' column")
-                    st.write("**Available columns:**", list(df.columns))
-                    
+                    st.success(f"✅ {valid_cpids} CP IDs found")
+                else:
+                    st.error("❌ 'cpId' column required")
             except Exception as e:
-                st.error(f"❌ Error reading CSV: {e}")
+                st.error(f"❌ Error: {e}")
     
-    else:  # Manual Entry
-        st.write("**✏️ Manual Entry**")
+    else:  # Manual
         manual_cpids = st.text_area(
-            "Enter cpIds (one per line)", 
+            "Enter CP IDs (one per line):", 
             height=200,
-            placeholder="Enter agent cpIds here, one per line...\nExample:\n12345\n67890\nabc123",
-            help="Enter one cpId per line. Empty lines will be ignored."
+            placeholder="CPC001\nCPC002\nCPC003"
         )
         if manual_cpids:
             lines = [c.strip() for c in manual_cpids.split('\n') if c.strip()]
-            st.info(f"📝 {len(lines)} cpIds entered")
-            
-            # Show preview of entered cpIds
-            if len(lines) > 0:
-                with st.expander("👀 Preview entered cpIds"):
-                    for i, cpid in enumerate(lines[:10]):  # Show first 10
-                        st.write(f"{i+1}. {cpid}")
-                    if len(lines) > 10:
-                        st.write(f"... and {len(lines) - 10} more")
+            st.info(f"📝 {len(lines)} CP IDs entered")
 
 with tab1:
-    st.subheader("📝 Notification Content")
+    st.subheader("📝 Compose Notification")
     
-    # Title input with character counter
+    # Quick test buttons
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        if st.button("📝 Load Test 1", use_container_width=True):
+            st.session_state['test_title'] = "New Property Available"
+            st.session_state['test_body'] = "Check out this amazing 3BHK apartment in Whitefield with modern amenities!"
+    with col2:
+        if st.button("📝 Load Test 2", use_container_width=True):
+            st.session_state['test_title'] = "Meeting Reminder"
+            st.session_state['test_body'] = "Team meeting scheduled at 3 PM today. Please join on time."
+    with col3:
+        if st.button("🗑️ Clear", use_container_width=True):
+            st.session_state['test_title'] = ""
+            st.session_state['test_body'] = ""
+    
+    # Title input
     title = st.text_input(
-        "📌 Notification Title", 
+        "📌 Title", 
+        value=st.session_state.get('test_title', ''),
         max_chars=100,
         placeholder="Enter notification title...",
-        help="Maximum 100 characters"
+        help="Max 100 characters"
     ).strip()
     
-    if title:
-        st.caption(f"📊 {len(title)}/100 characters")
-    
-    # Body input with character counter
+    # Body input
     body = st.text_area(
-        "📄 Notification Body", 
-        height=120, 
+        "📄 Message", 
+        value=st.session_state.get('test_body', ''),
+        height=100, 
         max_chars=500,
         placeholder="Enter notification message...",
-        help="Maximum 500 characters"
+        help="Max 500 characters"
     ).strip()
     
-    if body:
-        st.caption(f"📊 {len(body)}/500 characters")
+    # Campaign name input
+    campaign_name = st.text_input(
+        "🏷️ Campaign Name (for tracking)",
+        placeholder="e.g., November Property Launch, Weekend Promo",
+        help="This will appear as 'message_name' in Firebase Analytics"
+    ).strip()
     
-    # Preview section
+    # Preview section - cleaner version
     if title or body:
-        st.subheader("👀 Live Preview")
+        st.markdown("---")
+        st.markdown("### 👀 Preview")
         
-        # iOS Preview
-        st.write("**🍎 iOS Preview:**")
-        st.markdown(f"""
-        <div style="border:1px solid #007AFF;border-radius:15px;padding:20px;background:linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);margin-bottom:10px;">
-          <div style="display:flex;align-items:center;margin-bottom:10px;">
-            <div style="width:40px;height:40px;background:#007AFF;border-radius:8px;display:flex;align-items:center;justify-content:center;color:white;font-weight:bold;margin-right:10px;">📱</div>
-            <div>
-              <h4 style="margin:0;color:#1d1d1f;font-size:16px;">{title or 'Title'}</h4>
-              <p style="margin:0;color:#86868b;font-size:12px;">now</p>
-            </div>
-          </div>
-          <p style="margin:0;color:#1d1d1f;font-size:14px;line-height:1.4;">{body or 'Notification body will appear here...'}</p>
-        </div>
-        """, unsafe_allow_html=True)
+        col1, col2 = st.columns(2)
         
-        # Android Preview
-        st.write("**🤖 Android Preview:**")
-        st.markdown(f"""
-        <div style="border:1px solid #34A853;border-radius:8px;padding:15px;background:#f8f9fa;margin-bottom:10px;">
-          <div style="display:flex;align-items:center;margin-bottom:8px;">
-            <div style="width:32px;height:32px;background:#34A853;border-radius:6px;display:flex;align-items:center;justify-content:center;color:white;font-size:14px;margin-right:10px;">📱</div>
-            <div>
-              <h4 style="margin:0;color:#202124;font-size:14px;font-weight:500;">{title or 'Title'}</h4>
-              <p style="margin:0;color:#5f6368;font-size:12px;">Just now</p>
+        with col1:
+            st.markdown("**🍎 iOS**")
+            st.markdown(f"""
+            <div style="border:1px solid #ddd;border-radius:12px;padding:15px;background:#f9f9f9;">
+              <div style="display:flex;align-items:start;gap:10px;">
+                <div style="width:35px;height:35px;background:#007AFF;border-radius:8px;display:flex;align-items:center;justify-content:center;color:white;font-size:18px;">📱</div>
+                <div style="flex:1;">
+                  <div style="font-weight:600;color:#000;font-size:15px;margin-bottom:2px;">{title or 'Title'}</div>
+                  <div style="color:#666;font-size:13px;line-height:1.4;">{body or 'Message'}</div>
+                  <div style="color:#999;font-size:11px;margin-top:4px;">now</div>
+                </div>
+              </div>
             </div>
-          </div>
-          <p style="margin:0;color:#202124;font-size:13px;line-height:1.3;">{body or 'Notification body will appear here...'}</p>
-</div>
-""", unsafe_allow_html=True)
+            """, unsafe_allow_html=True)
+        
+        with col2:
+            st.markdown("**🤖 Android**")
+            st.markdown(f"""
+            <div style="border:1px solid #ddd;border-radius:8px;padding:15px;background:#fff;">
+              <div style="display:flex;align-items:start;gap:10px;">
+                <div style="width:32px;height:32px;background:#34A853;border-radius:6px;display:flex;align-items:center;justify-content:center;color:white;font-size:16px;">📱</div>
+                <div style="flex:1;">
+                  <div style="font-weight:500;color:#202124;font-size:14px;margin-bottom:2px;">{title or 'Title'}</div>
+                  <div style="color:#5f6368;font-size:13px;line-height:1.3;">{body or 'Message'}</div>
+                  <div style="color:#999;font-size:11px;margin-top:4px;">Just now</div>
+                </div>
+              </div>
+            </div>
+            """, unsafe_allow_html=True)
 
     st.markdown("---")
     
@@ -742,22 +924,161 @@ with tab1:
                     st.error(f"❌ {msg}")
 
 # Analytics tab
-with tab3:
-    st.subheader("📈 Notification Analytics")
+with tab4:
+    st.subheader("📈 Campaign Analytics")
     
-    # Placeholder for analytics - can be expanded later
-    st.info("📊 Analytics features coming soon! Track notification delivery rates, device types, and more.")
+    campaigns = load_campaigns()
     
-    # Show recent activity placeholder
-    st.write("**📋 Recent Activity:**")
-    st.write("• No recent notifications sent")
-    st.write("• Analytics will appear here after sending notifications")
+    if campaigns:
+        # Convert to DataFrame
+        df = pd.DataFrame(campaigns)
+        df['timestamp'] = pd.to_datetime(df['timestamp'])
+        
+        st.metric("📊 Total Campaigns", len(campaigns))
+        
+        # Filters
+        col1, col2 = st.columns(2)
+        with col1:
+            cohorts_available = list(load_cohorts().keys())
+            if cohorts_available:
+                filter_cohort = st.selectbox("Filter by cohort:", ["All"] + cohorts_available)
+            else:
+                filter_cohort = "All"
+        
+        with col2:
+            if len(df) > 0:
+                min_date = df['timestamp'].min().date()
+                max_date = df['timestamp'].max().date()
+                date_range = st.date_input("Date range:", value=(min_date, max_date))
+        
+        # Apply filters
+        filtered_df = df.copy()
+        if filter_cohort != "All":
+            filtered_df = filtered_df[filtered_df['cohorts'].apply(
+                lambda x: filter_cohort in x if isinstance(x, list) else False
+            )]
+        
+        # Add campaign_name column if it doesn't exist
+        if 'campaign_name' not in filtered_df.columns:
+            filtered_df['campaign_name'] = filtered_df['title']  # Use title as fallback
+        
+        # Display campaigns
+        st.markdown("### 📋 Campaign History")
+        display_df = filtered_df[['campaign_id', 'campaign_name', 'title', 'body', 'cohorts', 'logic', 'timestamp', 'total_sent', 'total_failed', 'duration_seconds']].copy()
+        display_df['timestamp'] = display_df['timestamp'].dt.strftime('%Y-%m-%d %H:%M:%S')
+        # Format cohorts as comma-separated string
+        display_df['cohorts'] = display_df['cohorts'].apply(
+            lambda x: ', '.join(x) if isinstance(x, list) and x else 'All Agents'
+        )
+        st.dataframe(display_df, use_container_width=True)
+        
+        # Download button
+        csv = filtered_df.to_csv(index=False)
+        st.download_button(
+            "📥 Download Campaign Data (CSV)",
+            csv,
+            "campaigns.csv",
+            "text/csv",
+            use_container_width=True
+        )
+        
+        # Campaign stats
+        st.markdown("### 📊 Statistics")
+        col1, col2, col3, col4 = st.columns(4)
+        with col1:
+            total_sent = filtered_df['total_sent'].sum()
+            st.metric("Total Sent", f"{total_sent:,}")
+        with col2:
+            total_failed = filtered_df['total_failed'].sum()
+            st.metric("Total Failed", f"{total_failed:,}")
+        with col3:
+            avg_success = (total_sent / (total_sent + total_failed) * 100) if (total_sent + total_failed) > 0 else 0
+            st.metric("Avg Success Rate", f"{avg_success:.1f}%")
+        with col4:
+            avg_duration = filtered_df['duration_seconds'].mean()
+            st.metric("Avg Duration", f"{avg_duration:.1f}s")
+        
+        st.markdown("---")
+        st.error("⚠️ **IMPORTANT: Campaign tracking requires app code update!**")
+        
+        col1, col2 = st.columns([3, 1])
+        with col1:
+            st.warning("**Your React Native app must log notification data to Firebase Analytics!**")
+        with col2:
+            with open("REACT_NATIVE_TRACKING_SETUP.md", "r", encoding="utf-8") as f:
+                setup_guide = f.read()
+            st.download_button(
+                "📥 Download Setup Guide",
+                setup_guide,
+                "REACT_NATIVE_TRACKING_SETUP.md",
+                "text/markdown",
+                use_container_width=True
+            )
+        
+        with st.expander("📱 Quick Preview - React Native Code"):
+            st.markdown("""
+            **Why am I getting NULL values in BigQuery?**
+            
+            Firebase doesn't automatically log notification data to Analytics. Your app must explicitly log it.
+            
+            **Add this to your React Native app:**
+            """)
+            
+            st.code("""import analytics from '@react-native-firebase/analytics';
+import messaging from '@react-native-firebase/messaging';
+
+// Log notification open to Firebase Analytics
+async function logNotificationOpen(remoteMessage) {
+  const { data } = remoteMessage;
+  
+  await analytics().logEvent('notification_open', {
+    message_id: data.campaign_id || '',
+    message_name: data.campaign_name || '',
+    campaign_id: data.campaign_id || '',
+    campaign_name: data.campaign_name || '',
+    cohort_tags: data.cohort_tags || '',
+  });
+}
+
+// When notification opens app (background state)
+messaging().onNotificationOpenedApp(async (remoteMessage) => {
+  await logNotificationOpen(remoteMessage);
+  // ... your navigation code
+});
+
+// When notification opens app (quit state)
+messaging().getInitialNotification().then(async (remoteMessage) => {
+  if (remoteMessage) {
+    await logNotificationOpen(remoteMessage);
+  }
+});""", language="javascript")
+            
+            st.info("📄 **Download the complete guide above** for full implementation with debugging tips!")
+            
+            st.markdown("""
+            **What this tool does vs what your app must do:**
+            - ✅ Tool sends: `campaign_id`, `message_id`, `campaign_name`, `message_name` in notification data
+            - ❌ Tool cannot: Make your app log to Analytics (only app code can do this)
+            - ✅ App must: Call `analytics().logEvent()` when notification opens
+            """)
+        
+    else:
+        st.info("📊 No campaigns yet. Send some notifications to see analytics here!")
+
 
 # Initialize session state for tokens
 if 'processed_tokens' not in st.session_state:
     st.session_state.processed_tokens = None
 if 'show_confirmation' not in st.session_state:
     st.session_state.show_confirmation = False
+if 'campaign_id' not in st.session_state:
+    st.session_state.campaign_id = None
+if 'campaign_name' not in st.session_state:
+    st.session_state.campaign_name = None
+if 'selected_cohorts' not in st.session_state:
+    st.session_state.selected_cohorts = []
+if 'logic_type' not in st.session_state:
+    st.session_state.logic_type = "OR"
 
 # Main send button
 st.markdown("---")
@@ -781,31 +1102,67 @@ if send_button:
 
     # Determine recipient method and gather tokens
     tokens = []
+    campaign_cohorts = []  # Store cohort names for campaign tracking
+    campaign_logic = "OR"
     
-    if recipient_method == "📢 Send to All Agents":
-        st.info("🚀 Using optimized direct token fetching for better performance...")
-        with st.spinner("🔍 Fetching all tokens directly from database..."):
+    # Generate campaign ID
+    campaign_id = generate_campaign_id()
+    st.info(f"🆔 Campaign ID: **{campaign_id}**")
+    
+    if recipient_method == "📢 All Agents":
+        st.info("� Fetching tokens...")
+        with st.spinner("Loading..."):
             tokens = fetch_all_tokens_directly()
-        st.success(f"✅ Found {len(tokens)} total tokens in database")
+        st.success(f"✅ {len(tokens)} tokens ready")
         
     else:
         # Gather cpIds first
         cpids = []
         
-        if recipient_method == "📁 Upload CSV File" and 'uploaded_csv' in locals() and uploaded_csv:
+        if recipient_method == "🏷️ Cohorts":
+            # Check if cohorts were selected in the UI
             try:
-                df = pd.read_csv(uploaded_csv)
-                if 'cpId' in df.columns:
-                    cpids += df['cpId'].dropna().astype(str).tolist()
+                if selected_cohorts and selected_cp_ids:
+                    cpids = selected_cp_ids
+                    # Store cohort names and logic type for campaign tracking
+                    campaign_cohorts = selected_cohorts
+                    campaign_logic = "AND" if "AND" in logic_type else "OR"
                 else:
-                    st.error("❌ CSV must contain a 'cpId' column")
+                    st.error("❌ Select a cohort")
                     st.stop()
+            except NameError:
+                st.error("❌ Select cohorts first")
+                st.stop()
+            
+        elif recipient_method == "📁 CSV File":
+            try:
+                if uploaded_csv:
+                    df = pd.read_csv(uploaded_csv)
+                    if 'cpId' in df.columns:
+                        cpids += df['cpId'].dropna().astype(str).tolist()
+                    else:
+                        st.error("❌ 'cpId' column required")
+                        st.stop()
+                else:
+                    st.error("❌ Upload CSV")
+                    st.stop()
+            except NameError:
+                st.error("❌ Upload CSV first")
+                st.stop()
             except Exception as e:
-                st.error(f"❌ Error reading CSV: {e}")
+                st.error(f"❌ Error: {e}")
                 st.stop()
                 
-        elif recipient_method == "✏️ Manual Entry" and 'manual_cpids' in locals() and manual_cpids:
-            cpids += [c.strip() for c in manual_cpids.split('\n') if c.strip()]
+        elif recipient_method == "✏️ Manual":
+            try:
+                if manual_cpids:
+                    cpids += [c.strip() for c in manual_cpids.split('\n') if c.strip()]
+                else:
+                    st.error("❌ Enter CP IDs")
+                    st.stop()
+            except NameError:
+                st.error("❌ Enter CP IDs first")
+                st.stop()
 
         cpids = list(set(filter(None, cpids)))
         
@@ -865,12 +1222,38 @@ if send_button:
     st.session_state.processed_tokens = tokens
     st.session_state.show_confirmation = True
     
+    # Store campaign data in session state
+    st.session_state.campaign_id = campaign_id
+    st.session_state.campaign_name = campaign_name if campaign_name else title
+    st.session_state.selected_cohorts = campaign_cohorts
+    st.session_state.logic_type = campaign_logic
+    
     # Confirmation
     st.markdown("### 🚀 Ready to Send!")
     
     # Show notification preview
     st.write("**📋 Notification Preview:**")
     st.info(f"**Title:** {title}\n**Body:** {body}")
+    
+    # Show campaign tracking info
+    if campaign_id or campaign_name:
+        st.success(f"**📊 Campaign Tracking:**\n- Campaign ID: `{campaign_id}`\n- Campaign Name: `{campaign_name if campaign_name else title}`")
+        with st.expander("🔍 Data Payload (what will be sent)"):
+            payload_preview = {
+                "title": title,
+                "body": body,
+                "campaign_id": campaign_id,
+                "message_id": campaign_id,
+                "campaign_name": campaign_name if campaign_name else title,
+                "message_name": campaign_name if campaign_name else title,
+                "cohort_tags": ','.join(campaign_cohorts) if campaign_cohorts else "All Agents",
+                "click_action": current_click_action,
+                "screen": current_screen_name,
+                "route": current_default_route,
+                "from_notification": "true"
+            }
+            st.json(payload_preview)
+            st.warning("⚠️ **Important:** Your Flutter app must log these fields to Firebase Analytics when the notification is opened. Check app code!")
     
     # Debug information
     with st.expander("🔍 Debug Information"):
@@ -933,8 +1316,12 @@ if st.session_state.show_confirmation and st.session_state.processed_tokens:
             st.rerun()
     with col2:
         if st.button("✅ Confirm & Send Notifications", type="primary", use_container_width=True):
-            # Get tokens from session state
+            # Get tokens and campaign data from session state
             tokens = st.session_state.processed_tokens
+            campaign_id = st.session_state.campaign_id
+            campaign_name = st.session_state.campaign_name
+            selected_cohorts = st.session_state.selected_cohorts
+            logic_type = st.session_state.logic_type
             
             st.markdown("### 📤 Sending Notifications...")
             
@@ -948,7 +1335,8 @@ if st.session_state.show_confirmation and st.session_state.processed_tokens:
                 with st.spinner("🚀 Sending notifications in parallel..."):
                     summary, errors = send_notifications_parallel(
                         title, body, tokens, batch_size, max_workers, 
-                        current_click_action, current_default_route, current_screen_name
+                        current_click_action, current_default_route, current_screen_name,
+                        campaign_id, campaign_name, selected_cohorts
                     )
             except Exception as e:
                 st.error(f"❌ Error during sending: {str(e)}")
@@ -956,6 +1344,22 @@ if st.session_state.show_confirmation and st.session_state.processed_tokens:
             
             end_time = time.time()
             duration = end_time - start_time
+            
+            # Save campaign data
+            campaign_data = {
+                "campaign_id": campaign_id,
+                "campaign_name": campaign_name,
+                "title": title,
+                "body": body,
+                "cohorts": selected_cohorts,
+                "logic": logic_type,
+                "timestamp": datetime.now().isoformat(),
+                "total_sent": summary['success'],
+                "total_failed": summary['errors'],
+                "total_recipients": len(tokens),
+                "duration_seconds": round(duration, 2)
+            }
+            save_campaign(campaign_data)
             
             st.success("✅ All notifications sent!")
             st.markdown("---")

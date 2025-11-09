@@ -1,0 +1,735 @@
+[
+  {
+    "campaign_id": "campaign_20251105_155058",
+    "title": "test",
+    "body": "test",
+    "cohorts": [],
+    "logic": "OR",
+    "timestamp": "2025-11-05T15:51:17.146411",
+    "total_sent": 2,
+    "total_failed": 8,
+    "total_recipients": 10,
+    "duration_seconds": 6.45
+  },
+  {
+    "campaign_id": "campaign_20251105_160419",
+    "title": "test",
+    "body": "test",
+    "cohorts": [
+      "Test"
+    ],
+    "logic": "OR",
+    "timestamp": "2025-11-05T16:04:31.877941",
+    "total_sent": 2,
+    "total_failed": 8,
+    "total_recipients": 10,
+    "duration_seconds": 5.45
+  },
+  {
+    "campaign_id": "campaign_20251105_184208",
+    "title": "Prestige City 2.0 Report Available \ud83d\udcca",
+    "body": "\u2705 Detailed report ready \u2013 perfect for sharing with clients, complete with your logos and branding \n\ud83d\udcde Contact your KAM to get it now!",
+    "cohorts": [
+      "East Bangalore"
+    ],
+    "logic": "OR",
+    "timestamp": "2025-11-05T18:43:49.112639",
+    "total_sent": 337,
+    "total_failed": 96,
+    "total_recipients": 433,
+    "duration_seconds": 56.95
+  },
+  {
+    "campaign_id": "campaign_20251105_184438",
+    "title": "Sattva Lumina Report Available \ud83d\udcca",
+    "body": "\u2705 Detailed report ready \u2013 perfect for sharing with clients, complete with your logos and branding \n\ud83d\udcde Contact your KAM to get it now!",
+    "cohorts": [
+      "North Bangalore"
+    ],
+    "logic": "OR",
+    "timestamp": "2025-11-05T18:45:51.675069",
+    "total_sent": 219,
+    "total_failed": 43,
+    "total_recipients": 262,
+    "duration_seconds": 45.18
+  },
+  {
+    "campaign_id": "campaign_20251105_184724",
+    "title": "Provident Manchester Report Available \ud83d\udcca",
+    "body": "\u2705 Detailed report ready \u2013 perfect for sharing with clients, complete with your logos and branding \n\ud83d\udcde Contact your KAM to get it now!",
+    "cohorts": [
+      "Central Bangalore",
+      "Pan Bangalore",
+      "West Bangalore",
+      "South Bangalore"
+    ],
+    "logic": "OR",
+    "timestamp": "2025-11-05T18:48:31.094380",
+    "total_sent": 278,
+    "total_failed": 71,
+    "total_recipients": 349,
+    "duration_seconds": 34.78
+  },
+  {
+    "campaign_id": "campaign_20251106_085602",
+    "title": "NORTH BANGALORE \ud83d\udd14 3 New Properties in Yelahanka | View Now",
+    "body": "Agents are already enquiring. Where are you",
+    "cohorts": [
+      "North Bangalore"
+    ],
+    "logic": "OR",
+    "timestamp": "2025-11-06T08:56:56.006308",
+    "total_sent": 219,
+    "total_failed": 43,
+    "total_recipients": 262,
+    "duration_seconds": 28.42
+  },
+  {
+    "campaign_id": "campaign_20251106_085754",
+    "title": "SOUTH BANGALORE \ud83d\udd14 JP Nagar: 5 Fresh Listings Today",
+    "body": "Agents are already enquiring. Where are you ?",
+    "cohorts": [
+      "South Bangalore"
+    ],
+    "logic": "OR",
+    "timestamp": "2025-11-06T08:58:48.952060",
+    "total_sent": 115,
+    "total_failed": 30,
+    "total_recipients": 145,
+    "duration_seconds": 24.56
+  },
+  {
+    "campaign_id": "campaign_20251106_085956",
+    "title": "EAST BANGALORE \ud83d\udd14 Whitefield: 5 Fresh Listings Today",
+    "body": "Agents are already enquiring. Where are you ?",
+    "cohorts": [
+      "East Bangalore"
+    ],
+    "logic": "OR",
+    "timestamp": "2025-11-06T09:01:09.840779",
+    "total_sent": 337,
+    "total_failed": 96,
+    "total_recipients": 433,
+    "duration_seconds": 37.43
+  },
+  {
+    "campaign_id": "campaign_20251106_090158",
+    "title": "WEST BANGALORE \ud83d\udd14 Rajajinagar: 5 Fresh Listings Today",
+    "body": "Agents are already enquiring. Where are you ?",
+    "cohorts": [
+      "West Bangalore"
+    ],
+    "logic": "OR",
+    "timestamp": "2025-11-06T09:02:07.878877",
+    "total_sent": 16,
+    "total_failed": 1,
+    "total_recipients": 17,
+    "duration_seconds": 3.09
+  },
+  {
+    "campaign_id": "campaign_20251106_090304",
+    "title": "CENTRAL BANGALORE \ud83d\udd14 Koramangala: Rare Opportunity",
+    "body": "Agents are already enquiring. Where are you ?",
+    "cohorts": [
+      "Central Bangalore"
+    ],
+    "logic": "OR",
+    "timestamp": "2025-11-06T09:03:21.388159",
+    "total_sent": 10,
+    "total_failed": 7,
+    "total_recipients": 17,
+    "duration_seconds": 6.93
+  },
+  {
+    "campaign_id": "campaign_20251106_090602",
+    "title": "All Bangalore: Latest Listings Live",
+    "body": "Premium to budget. Moving quickly!",
+    "cohorts": [
+      "Pan Bangalore"
+    ],
+    "logic": "OR",
+    "timestamp": "2025-11-06T09:06:45.711236",
+    "total_sent": 137,
+    "total_failed": 33,
+    "total_recipients": 170,
+    "duration_seconds": 27.4
+  },
+  {
+    "campaign_id": "campaign_20251106_123358",
+    "campaign_name": "trying to test",
+    "title": "test",
+    "body": "test",
+    "cohorts": [
+      "Test"
+    ],
+    "logic": "OR",
+    "timestamp": "2025-11-06T12:34:20.582389",
+    "total_sent": 2,
+    "total_failed": 8,
+    "total_recipients": 10,
+    "duration_seconds": 3.61
+  },
+  {
+    "campaign_id": "campaign_20251106_124838",
+    "campaign_name": "trying to test",
+    "title": "test",
+    "body": "test",
+    "cohorts": [
+      "Test"
+    ],
+    "logic": "OR",
+    "timestamp": "2025-11-06T12:48:55.811215",
+    "total_sent": 2,
+    "total_failed": 8,
+    "total_recipients": 10,
+    "duration_seconds": 9.01
+  },
+  {
+    "campaign_id": "campaign_20251106_125747",
+    "campaign_name": "i dont know",
+    "title": "test 2",
+    "body": "test 2",
+    "cohorts": [],
+    "logic": "OR",
+    "timestamp": "2025-11-06T12:57:54.563545",
+    "total_sent": 0,
+    "total_failed": 5,
+    "total_recipients": 5,
+    "duration_seconds": 0.1
+  },
+  {
+    "campaign_id": "campaign_20251106_125811",
+    "campaign_name": "i dont know",
+    "title": "test 2",
+    "body": "test 2",
+    "cohorts": [],
+    "logic": "OR",
+    "timestamp": "2025-11-06T12:58:15.280500",
+    "total_sent": 0,
+    "total_failed": 5,
+    "total_recipients": 5,
+    "duration_seconds": 0.1
+  },
+  {
+    "campaign_id": "campaign_20251106_125836",
+    "campaign_name": "i dont know",
+    "title": "test 2",
+    "body": "test 2",
+    "cohorts": [
+      "Test"
+    ],
+    "logic": "OR",
+    "timestamp": "2025-11-06T12:58:39.843784",
+    "total_sent": 0,
+    "total_failed": 10,
+    "total_recipients": 10,
+    "duration_seconds": 0.17
+  },
+  {
+    "campaign_id": "campaign_20251106_130129",
+    "campaign_name": "dont know yet",
+    "title": "try",
+    "body": "try",
+    "cohorts": [],
+    "logic": "OR",
+    "timestamp": "2025-11-06T13:01:34.211798",
+    "total_sent": 0,
+    "total_failed": 5,
+    "total_recipients": 5,
+    "duration_seconds": 0.09
+  },
+  {
+    "campaign_id": "campaign_20251106_130330",
+    "campaign_name": "hi",
+    "title": "hi",
+    "body": "hi",
+    "cohorts": [],
+    "logic": "OR",
+    "timestamp": "2025-11-06T13:03:38.959313",
+    "total_sent": 1,
+    "total_failed": 4,
+    "total_recipients": 5,
+    "duration_seconds": 2.11
+  },
+  {
+    "campaign_id": "campaign_20251106_132824",
+    "campaign_name": "Requirements in East Bangalore \ud83c\udfe2",
+    "title": "Requirements in East Bangalore \ud83c\udfe2",
+    "body": "Prestige Laughing Waters, Prestige Waterford, Sobha Royal Pavilion. \nMatch your inventory now!",
+    "cohorts": [
+      "East Bangalore"
+    ],
+    "logic": "OR",
+    "timestamp": "2025-11-06T13:29:47.556118",
+    "total_sent": 336,
+    "total_failed": 95,
+    "total_recipients": 431,
+    "duration_seconds": 43.47
+  },
+  {
+    "campaign_id": "campaign_20251106_133123",
+    "campaign_name": "Requirement",
+    "title": "Requirements in West Bangalore \ud83c\udfe2",
+    "body": "Sapoorji Pallonji Park, Navami Landmark.\nMatch your inventory now!",
+    "cohorts": [
+      "West Bangalore"
+    ],
+    "logic": "OR",
+    "timestamp": "2025-11-06T13:31:33.626276",
+    "total_sent": 16,
+    "total_failed": 1,
+    "total_recipients": 17,
+    "duration_seconds": 5.64
+  },
+  {
+    "campaign_id": "campaign_20251106_133222",
+    "campaign_name": "Requirement",
+    "title": "Requirements in North Bangalore \ud83c\udfe2",
+    "body": "Prestige Finsbury Park, Sobha HRC Pristine, Prestige Royal Gardens.\nMatch your inventory now!",
+    "cohorts": [
+      "North Bangalore"
+    ],
+    "logic": "OR",
+    "timestamp": "2025-11-06T13:33:29.118952",
+    "total_sent": 219,
+    "total_failed": 43,
+    "total_recipients": 262,
+    "duration_seconds": 40.43
+  },
+  {
+    "campaign_id": "campaign_20251106_133407",
+    "campaign_name": "Requirement",
+    "title": "Requirements in South Bangalore \ud83c\udfe2",
+    "body": "Satva Mist Charms, Sobha Daffodil, Mantri Serenity.\nMatch your inventory now!",
+    "cohorts": [
+      "South Bangalore"
+    ],
+    "logic": "OR",
+    "timestamp": "2025-11-06T13:34:56.051128",
+    "total_sent": 115,
+    "total_failed": 30,
+    "total_recipients": 145,
+    "duration_seconds": 34.9
+  },
+  {
+    "campaign_id": "campaign_20251106_133528",
+    "campaign_name": "Requirement",
+    "title": "Requirements in Central Bangalore \ud83c\udfe2",
+    "body": "Satva Luxuria, Villa in Lalbagh, Phynics Kesakku.\nMatch your inventory now!",
+    "cohorts": [
+      "Central Bangalore"
+    ],
+    "logic": "OR",
+    "timestamp": "2025-11-06T13:35:43.432912",
+    "total_sent": 10,
+    "total_failed": 7,
+    "total_recipients": 17,
+    "duration_seconds": 8.96
+  },
+  {
+    "campaign_id": "campaign_20251106_133643",
+    "campaign_name": "Requirement",
+    "title": "Requirements in Bangalore \ud83c\udfe2",
+    "body": "Prestige Finsbury Park, Sobha HRC Pristine, Prestige Royal Gardens.\nMatch your inventory now!",
+    "cohorts": [
+      "Pan Bangalore"
+    ],
+    "logic": "OR",
+    "timestamp": "2025-11-06T13:37:29.448173",
+    "total_sent": 137,
+    "total_failed": 33,
+    "total_recipients": 170,
+    "duration_seconds": 33.01
+  },
+  {
+    "campaign_id": "campaign_20251106_150625",
+    "campaign_name": "price drop",
+    "title": "\ud83d\udd25 Price Drop: Devanahalli - \u20b915L Down!",
+    "body": "Embassy Edge 3BHK: \u20b91.20Cr \u2192 \u20b91.05Cr\nGrab it before someone else does!",
+    "cohorts": [
+      "North Bangalore"
+    ],
+    "logic": "OR",
+    "timestamp": "2025-11-06T15:08:30.313649",
+    "total_sent": 219,
+    "total_failed": 43,
+    "total_recipients": 262,
+    "duration_seconds": 79.48
+  },
+  {
+    "campaign_id": "campaign_20251106_151452",
+    "campaign_name": "price drop",
+    "title": "\ud83d\udd25 Price Drop: Koramangala - \u20b95.25Cr \u2192 \u20b95.23Cr",
+    "body": "Kinglife Bel-Air 3BHK: \u20b95.25Cr \u2192 \u20b95.23Cr\nPremium location. Act now!",
+    "cohorts": [
+      "Central Bangalore"
+    ],
+    "logic": "OR",
+    "timestamp": "2025-11-06T15:17:58.517427",
+    "total_sent": 10,
+    "total_failed": 7,
+    "total_recipients": 17,
+    "duration_seconds": 14.52
+  },
+  {
+    "campaign_id": "campaign_20251106_151855",
+    "campaign_name": "price drop",
+    "title": "\ud83d\udd25 Price Drop: Varthur - \u20b925L Price Cut!",
+    "body": "Prestige Lavender 4.5BHK: \u20b94.50Cr \u2192 \u20b94.25Cr\nLuxury at a discount. Limited time!",
+    "cohorts": [
+      "East Bangalore"
+    ],
+    "logic": "OR",
+    "timestamp": "2025-11-06T15:20:59.447414",
+    "total_sent": 337,
+    "total_failed": 95,
+    "total_recipients": 432,
+    "duration_seconds": 79.94
+  },
+  {
+    "campaign_id": "campaign_20251106_152134",
+    "campaign_name": "price drop",
+    "title": "\ud83d\udd25 Kannuru: \u20b910L Reduced Today",
+    "body": "Sobha City 4BHK: \u20b95.20Cr \u2192 \u20b95.10Cr\nPremium township. Hurry!",
+    "cohorts": [
+      "North Bangalore"
+    ],
+    "logic": "OR",
+    "timestamp": "2025-11-06T15:23:27.977622",
+    "total_sent": 219,
+    "total_failed": 43,
+    "total_recipients": 262,
+    "duration_seconds": 79.69
+  },
+  {
+    "campaign_id": "campaign_20251107_093125",
+    "campaign_name": "\ud83c\udfd8\ufe0f New Properties in North Bangalore",
+    "title": "\ud83c\udfd8\ufe0f New Properties in North Bangalore",
+    "body": "Provident Ecopolitan, Alpine Pyramid & Godrej Woodsman Estate and many more",
+    "cohorts": [
+      "North Bangalore"
+    ],
+    "logic": "OR",
+    "timestamp": "2025-11-07T09:32:33.789989",
+    "total_sent": 219,
+    "total_failed": 32,
+    "total_recipients": 251,
+    "duration_seconds": 30.4
+  },
+  {
+    "campaign_id": "campaign_20251107_093315",
+    "campaign_name": "\ud83c\udfe2 New Properties in East Bangalore",
+    "title": "\ud83c\udfe2 New Properties in East Bangalore",
+    "body": "Assetz Bloom & Dell, Prestige Elm Park & Sobha Neopolis and many more",
+    "cohorts": [
+      "East Bangalore"
+    ],
+    "logic": "OR",
+    "timestamp": "2025-11-07T09:34:28.719765",
+    "total_sent": 337,
+    "total_failed": 68,
+    "total_recipients": 405,
+    "duration_seconds": 35.94
+  },
+  {
+    "campaign_id": "campaign_20251107_093514",
+    "campaign_name": "\ud83c\udfe1 New Properties in West Bangalore",
+    "title": "\ud83c\udfe1 New Properties in West Bangalore",
+    "body": "Sobha Royal Crest, Independent Apartments in Nagapura & Prestige Jindal City and many more",
+    "cohorts": [
+      "West Bangalore"
+    ],
+    "logic": "OR",
+    "timestamp": "2025-11-07T09:35:22.357985",
+    "total_sent": 16,
+    "total_failed": 0,
+    "total_recipients": 16,
+    "duration_seconds": 2.26
+  },
+  {
+    "campaign_id": "campaign_20251107_093634",
+    "campaign_name": "\ud83c\udf1f New Properties in South Bangalore",
+    "title": "\ud83c\udf1f New Properties in South Bangalore",
+    "body": "Assetz Canvas And Cove, Arcade Royal & Svasa Homes and many more",
+    "cohorts": [
+      "South Bangalore"
+    ],
+    "logic": "OR",
+    "timestamp": "2025-11-07T09:37:22.348821",
+    "total_sent": 115,
+    "total_failed": 13,
+    "total_recipients": 128,
+    "duration_seconds": 31.02
+  },
+  {
+    "campaign_id": "campaign_20251107_093805",
+    "campaign_name": "\ud83c\udfd9\ufe0f New Properties in Central Bangalore",
+    "title": "\ud83c\udfd9\ufe0f New Properties in Central Bangalore",
+    "body": "Brigade Crescent, Shapoorji Pallonji Parkwest & RMZ Woodsdale and many more",
+    "cohorts": [
+      "Central Bangalore"
+    ],
+    "logic": "OR",
+    "timestamp": "2025-11-07T09:38:25.331327",
+    "total_sent": 10,
+    "total_failed": 4,
+    "total_recipients": 14,
+    "duration_seconds": 7.56
+  },
+  {
+    "campaign_id": "campaign_20251107_093924",
+    "campaign_name": "\ud83d\udccd New Properties Across Bangalore",
+    "title": "\ud83d\udccd New Properties Across Bangalore",
+    "body": "250+ fresh listings in North, South, East & West zones and many more",
+    "cohorts": [
+      "Pan Bangalore"
+    ],
+    "logic": "OR",
+    "timestamp": "2025-11-07T09:40:14.305929",
+    "total_sent": 137,
+    "total_failed": 12,
+    "total_recipients": 149,
+    "duration_seconds": 28.62
+  },
+  {
+    "campaign_id": "campaign_20251107_152357",
+    "campaign_name": "site visit genral",
+    "title": "\ud83e\udd14 Site Visit Booked for This Weekend?",
+    "body": "If not, we've got plenty of options. \nJust tap and see if you got what you're looking for",
+    "cohorts": [],
+    "logic": "OR",
+    "timestamp": "2025-11-07T15:24:42.150955",
+    "total_sent": 844,
+    "total_failed": 133,
+    "total_recipients": 977,
+    "duration_seconds": 29.72
+  },
+  {
+    "campaign_id": "campaign_20251108_085624",
+    "campaign_name": "requirements",
+    "title": "\ud83d\udd25 New Requirements in North Bangalore",
+    "body": "Hebbal, Yelahanka, Jakkur | 3-4BHK apartments + Commercial spaces | \u20b975L-\u20b99Cr - Big deals waiting!",
+    "cohorts": [
+      "North Bangalore"
+    ],
+    "logic": "OR",
+    "timestamp": "2025-11-08T08:57:15.927901",
+    "total_sent": 219,
+    "total_failed": 32,
+    "total_recipients": 251,
+    "duration_seconds": 23.79
+  },
+  {
+    "campaign_id": "campaign_20251108_085757",
+    "campaign_name": "requirements",
+    "title": "\ud83d\udd25 New Requirements in East Bangalore",
+    "body": "Whitefield, KR Puram | 2-3BHK \u20b970L-\u20b91.65Cr | Fully furnished + East facing preferred - Act now!",
+    "cohorts": [
+      "East Bangalore"
+    ],
+    "logic": "OR",
+    "timestamp": "2025-11-08T08:59:08.773003",
+    "total_sent": 338,
+    "total_failed": 68,
+    "total_recipients": 406,
+    "duration_seconds": 28.65
+  },
+  {
+    "campaign_id": "campaign_20251108_090005",
+    "campaign_name": "requirements",
+    "title": "\ud83d\udd25 New Requirements in South Bangalore",
+    "body": "Bannerghatta Road, Lalbagh, Anjanapura | Villas \u20b98-15Cr + Independent houses - Luxury buyers ready!",
+    "cohorts": [
+      "South Bangalore"
+    ],
+    "logic": "OR",
+    "timestamp": "2025-11-08T09:00:39.966232",
+    "total_sent": 115,
+    "total_failed": 13,
+    "total_recipients": 128,
+    "duration_seconds": 18.9
+  },
+  {
+    "campaign_id": "campaign_20251108_090132",
+    "campaign_name": "requirements",
+    "title": "\ud83d\udd25 New Requirements inCentral Bangalore",
+    "body": "Fraser Town Commercial \u20b91-1.5Cr | Ready-to-close opportunities - Quick commissions!",
+    "cohorts": [
+      "Central Bangalore"
+    ],
+    "logic": "OR",
+    "timestamp": "2025-11-08T09:01:43.364274",
+    "total_sent": 10,
+    "total_failed": 4,
+    "total_recipients": 14,
+    "duration_seconds": 4.98
+  },
+  {
+    "campaign_id": "campaign_20251108_090227",
+    "campaign_name": "requirements",
+    "title": "\ud83d\udd25 New Requirements in West Bangalore",
+    "body": "Magadi Road, Kanakapura Road, Banashankari | Plots \u20b980L-\u20b91.2Cr | BBMP approved - Grab now!",
+    "cohorts": [
+      "West Bangalore"
+    ],
+    "logic": "OR",
+    "timestamp": "2025-11-08T09:02:44.744675",
+    "total_sent": 16,
+    "total_failed": 0,
+    "total_recipients": 16,
+    "duration_seconds": 1.89
+  },
+  {
+    "campaign_id": "campaign_20251108_090332",
+    "campaign_name": "requirements",
+    "title": "\ud83d\udd25 New Requirements in Bangalore",
+    "body": "Apartments, Villas, Plots, Commercial | \u20b965L to \u20b915Cr | North, South, East, West, Central - Find your match!",
+    "cohorts": [
+      "Pan Bangalore"
+    ],
+    "logic": "OR",
+    "timestamp": "2025-11-08T09:04:13.770975",
+    "total_sent": 137,
+    "total_failed": 12,
+    "total_recipients": 149,
+    "duration_seconds": 21.62
+  },
+  {
+    "campaign_id": "campaign_20251108_184558",
+    "campaign_name": "\ud83d\udea8 New Project Alert: Sumadhura Brookefield",
+    "title": "\ud83d\udea8 New Project Alert: Sumadhura Brookefield",
+    "body": "\ud83d\udcca Report already prepared and ready for you! \nContact your KAM to access it now.",
+    "cohorts": [
+      "East Bangalore"
+    ],
+    "logic": "OR",
+    "timestamp": "2025-11-08T18:47:09.561415",
+    "total_sent": 339,
+    "total_failed": 67,
+    "total_recipients": 406,
+    "duration_seconds": 35.82
+  },
+  {
+    "campaign_id": "campaign_20251108_184757",
+    "campaign_name": "\ud83d\udea8 New Project Alert: Godrej Yelahanka",
+    "title": "\ud83d\udea8 New Project Alert: Godrej Yelahanka",
+    "body": "\ud83d\udcca Report already prepared and ready for you! \nContact your KAM to access it now.",
+    "cohorts": [
+      "North Bangalore"
+    ],
+    "logic": "OR",
+    "timestamp": "2025-11-08T18:48:57.304199",
+    "total_sent": 219,
+    "total_failed": 33,
+    "total_recipients": 252,
+    "duration_seconds": 34.37
+  },
+  {
+    "campaign_id": "campaign_20251108_185004",
+    "campaign_name": "\ud83d\udea8 New Project Alert: Purva Kudlu (Codename)",
+    "title": "\ud83d\udea8 New Project Alert: Purva Kudlu (Codename)",
+    "body": "\ud83d\udcca Report already prepared and ready for you! \nContact your KAM to access it now.",
+    "cohorts": [
+      "Central Bangalore",
+      "West Bangalore",
+      "South Bangalore",
+      "Pan Bangalore"
+    ],
+    "logic": "OR",
+    "timestamp": "2025-11-08T18:51:08.112463",
+    "total_sent": 278,
+    "total_failed": 29,
+    "total_recipients": 307,
+    "duration_seconds": 28.92
+  },
+  {
+    "campaign_id": "campaign_20251109_104547",
+    "campaign_name": "East Bangalore - Prime Opportunities",
+    "title": "East Bangalore - Prime Opportunities",
+    "body": "Sarjapura 2BHK at \u20b952L | Whitefield villas from \u20b94.25Cr | Fresh inventory",
+    "cohorts": [
+      "East Bangalore"
+    ],
+    "logic": "OR",
+    "timestamp": "2025-11-09T10:46:58.030360",
+    "total_sent": 339,
+    "total_failed": 68,
+    "total_recipients": 407,
+    "duration_seconds": 31.72
+  },
+  {
+    "campaign_id": "campaign_20251109_104753",
+    "campaign_name": "Inventory",
+    "title": "North Bangalore - Growth Corridor",
+    "body": "Devanahalli plots at \u20b964L | Yelahanka apartments from \u20b91.17Cr",
+    "cohorts": [
+      "North Bangalore"
+    ],
+    "logic": "OR",
+    "timestamp": "2025-11-09T10:48:51.140516",
+    "total_sent": 219,
+    "total_failed": 33,
+    "total_recipients": 252,
+    "duration_seconds": 28.81
+  },
+  {
+    "campaign_id": "campaign_20251109_104935",
+    "campaign_name": "Inventory",
+    "title": "Central Bangalore - Premium Deals",
+    "body": "Fraser Town villa at \u20b98.5Cr | Chickpet commercial plots available",
+    "cohorts": [
+      "Central Bangalore"
+    ],
+    "logic": "OR",
+    "timestamp": "2025-11-09T10:49:45.379368",
+    "total_sent": 10,
+    "total_failed": 4,
+    "total_recipients": 14,
+    "duration_seconds": 5.6
+  },
+  {
+    "campaign_id": "campaign_20251109_105032",
+    "campaign_name": "Inventory",
+    "title": "South Bangalore - Premium Deals",
+    "body": "Begur apartments from \u20b91.09Cr | Electronic City villas \u20b95.6Cr",
+    "cohorts": [
+      "South Bangalore"
+    ],
+    "logic": "OR",
+    "timestamp": "2025-11-09T10:51:07.746209",
+    "total_sent": 115,
+    "total_failed": 13,
+    "total_recipients": 128,
+    "duration_seconds": 21.83
+  },
+  {
+    "campaign_id": "campaign_20251109_105154",
+    "campaign_name": "Inventory",
+    "title": "West Bangalore - Premium Deals",
+    "body": "Nagasandra 2BHK at \u20b976L | Rajajinagar premium stock",
+    "cohorts": [
+      "West Bangalore"
+    ],
+    "logic": "OR",
+    "timestamp": "2025-11-09T10:52:00.419794",
+    "total_sent": 16,
+    "total_failed": 0,
+    "total_recipients": 16,
+    "duration_seconds": 1.95
+  },
+  {
+    "campaign_id": "campaign_20251109_105335",
+    "campaign_name": "Inventory",
+    "title": "Pan Bangalore - Premium Deals",
+    "body": "12,000+ properties across all zones | Apartments, villas, plots - complete inventory access",
+    "cohorts": [
+      "Pan Bangalore"
+    ],
+    "logic": "OR",
+    "timestamp": "2025-11-09T10:54:15.900741",
+    "total_sent": 137,
+    "total_failed": 12,
+    "total_recipients": 149,
+    "duration_seconds": 24.31
+  }
+]
