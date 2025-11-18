@@ -254,26 +254,34 @@ def send_single_notification(doc_ref, token, is_array, token_type, title, body, 
             data=data_payload
         )
 
-        # Simplified iOS/APNs config
-        aps_alert = messaging.ApsAlert(title=title, body=body)
+        # iOS/APNs config - Properly structured for iOS
+        aps_alert = messaging.ApsAlert(
+            title=title,
+            body=body
+        )
         aps = messaging.Aps(
             alert=aps_alert,
             sound="default",
-            badge=1
+            badge=1,
+            content_available=True,  # Wake app in background
+            mutable_content=True  # Allow notification modifications
         )
         
         apns_payload = messaging.APNSPayload(aps=aps)
-        # Simple custom data for iOS
-        apns_payload.custom_data = data_payload
         
-        # APNs headers (optionally include apns-topic = iOS bundle id if provided)
+        # CRITICAL: APNs headers - iOS bundle ID required
         apns_headers = {
             "apns-priority": "10",
             "apns-push-type": "alert",
         }
+        
+        # Get iOS bundle ID from environment
         apns_topic = os.getenv("APNS_TOPIC") or os.getenv("IOS_BUNDLE_ID")
         if apns_topic:
             apns_headers["apns-topic"] = apns_topic
+        else:
+            # Warning: iOS notifications may fail without bundle ID
+            st.warning("⚠️ iOS Bundle ID not set! Set IOS_BUNDLE_ID in .env for iOS notifications")
 
         apns_config = messaging.APNSConfig(
             payload=apns_payload,
@@ -316,6 +324,19 @@ def send_single_notification(doc_ref, token, is_array, token_type, title, body, 
         
         # Enhanced error handling for different token types
         should_prune = False
+        
+        # Specific iOS APNs error handling
+        if token_type == 'ios':
+            if 'auth error from apns' in error_message or 'apns' in error_message:
+                st.error(f"❌ iOS APNs Error: {error_message}")
+                st.error("""\n**iOS Notification Failed - APNs Setup Required:**
+                1. Go to Firebase Console → Project Settings → Cloud Messaging
+                2. Under 'Apple app configuration', upload your APNs Authentication Key (.p8 file)
+                3. Or upload your APNs Certificate (.p12 file)
+                4. Set IOS_BUNDLE_ID in your .env file (e.g., com.yourcompany.yourapp)
+                5. Make sure the bundle ID matches your iOS app
+                """)
+                return False, None, ("error", f"iOS APNs authentication failed - Check Firebase Console APNs setup")
         
         # Only consider clear invalid token signals for pruning
         if 'invalid-registration-token' in error_message or 'unregistered' in error_message or error_code == 'not_found':
@@ -743,6 +764,28 @@ with tab2:
 
 with tab1:
     st.subheader("📝 Compose Notification")
+    
+    # iOS Setup Warning
+    ios_bundle_id = os.getenv("IOS_BUNDLE_ID")
+    if not ios_bundle_id:
+        st.warning("⚠️ **iOS notifications may fail!** Set `IOS_BUNDLE_ID` in your `.env` file. See `IOS_SETUP_GUIDE.md` for details.")
+        with st.expander("🍎 Quick iOS Setup Guide"):
+            st.markdown("""
+            **iOS notifications require APNs authentication:**
+            
+            1. **Upload APNs Key/Certificate to Firebase Console:**
+               - Go to Firebase Console → Project Settings → Cloud Messaging
+               - Upload your APNs Authentication Key (.p8) or Certificate (.p12)
+            
+            2. **Add iOS Bundle ID to .env file:**
+               ```
+               IOS_BUNDLE_ID=com.yourcompany.yourapp
+               ```
+            
+            3. **Restart this app** to load new settings
+            
+            📄 **Full guide:** See `IOS_SETUP_GUIDE.md` for complete instructions
+            """)
     
     # Quick test buttons
     col1, col2, col3 = st.columns(3)
