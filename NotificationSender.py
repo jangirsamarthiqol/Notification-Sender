@@ -148,7 +148,7 @@ def detect_token_type(token):
 def fetch_tokens_for_cpids(cpids):
     """
     Fetch tokens for a list of cpIds.
-    Returns list of tuples (doc_ref, token, is_array, token_type).
+    Returns list of tuples (doc_ref, token, is_array, token_type, name).
     """
     tokens = []
     for chunk in chunk_list(cpids, 10):
@@ -156,15 +156,16 @@ def fetch_tokens_for_cpids(cpids):
         for doc in query.stream():
             data = doc.to_dict()
             raw = data.get('fsmToken')
+            name = data.get('name', '')  # Get name from Firestore
             doc_ref = doc.reference
             if isinstance(raw, str) and raw.strip():
                 token_type = detect_token_type(raw.strip())
-                tokens.append((doc_ref, raw.strip(), False, token_type))
+                tokens.append((doc_ref, raw.strip(), False, token_type, name))
             elif isinstance(raw, (list, tuple)):
                 for t in raw:
                     if isinstance(t, str) and t.strip():
                         token_type = detect_token_type(t.strip())
-                        tokens.append((doc_ref, t.strip(), True, token_type))
+                        tokens.append((doc_ref, t.strip(), True, token_type, name))
     return tokens
 
 @st.cache_data(ttl=300)  # Cache for 5 minutes
@@ -183,17 +184,18 @@ def fetch_all_tokens_directly():
     for i, doc in enumerate(docs):
         data = doc.to_dict()
         raw = data.get('fsmToken')
+        name = data.get('name', '')  # Get name from Firestore
         # Use None for doc_ref to keep return value pickle-serializable
         doc_ref = None
         
         if isinstance(raw, str) and raw.strip():
             token_type = detect_token_type(raw.strip())
-            tokens.append((doc_ref, raw.strip(), False, token_type))
+            tokens.append((doc_ref, raw.strip(), False, token_type, name))
         elif isinstance(raw, (list, tuple)):
             for t in raw:
                 if isinstance(t, str) and t.strip():
                     token_type = detect_token_type(t.strip())
-                    tokens.append((doc_ref, t.strip(), True, token_type))
+                    tokens.append((doc_ref, t.strip(), True, token_type, name))
         
         # Update progress
         progress = (i + 1) / total_docs
@@ -213,13 +215,39 @@ def fetch_all_cpids():
             cpids.add(str(data['cpId']))
     return list(cpids)
 
-def send_single_notification(doc_ref, token, is_array, token_type, title, body, click_action="FLUTTER_NOTIFICATION_CLICK", route="/", screen="home", campaign_id=None, campaign_name=None, cohort_tags=None):
+def personalize_text(text, name):
+    """
+    Replace {name} and {firstname} placeholders with actual name.
+    {name} = Full name (e.g., "Shameer K")
+    {firstname} = First name only (e.g., "Shameer")
+    """
+    if not name:
+        return text
+    
+    # Get first name (everything before first space)
+    firstname = name.split()[0] if name else ''
+    
+    # Replace placeholders (case-insensitive)
+    text = text.replace('{name}', name)
+    text = text.replace('{Name}', name)
+    text = text.replace('{firstname}', firstname)
+    text = text.replace('{firstName}', firstname)
+    text = text.replace('{Firstname}', firstname)
+    text = text.replace('{FirstName}', firstname)
+    
+    return text
+
+def send_single_notification(doc_ref, token, is_array, token_type, title, body, click_action="FLUTTER_NOTIFICATION_CLICK", route="/", screen="home", campaign_id=None, campaign_name=None, cohort_tags=None, name=None):
     """Send a single notification with campaign tracking"""
     try:
+        # Personalize title and body with name
+        personalized_title = personalize_text(title, name)
+        personalized_body = personalize_text(body, name)
+        
         # Data payload with campaign tracking
         data_payload = {
-            "title": title,
-            "body": body,
+            "title": personalized_title,
+            "body": personalized_body,
             "click_action": click_action,
             "screen": screen,
             "route": route,
@@ -238,13 +266,13 @@ def send_single_notification(doc_ref, token, is_array, token_type, title, body, 
             data_payload["cohort_tags"] = ",".join(cohort_tags)
 
         # Basic notification
-        notification = messaging.Notification(title=title, body=body)
+        notification = messaging.Notification(title=personalized_title, body=personalized_body)
 
         # Android config
         android_config = messaging.AndroidConfig(
             notification=messaging.AndroidNotification(
-                title=title,
-                body=body,
+                title=personalized_title,
+                body=personalized_body,
                 sound="default",
                 click_action=click_action,
                 tag="acn_notification"
@@ -256,8 +284,8 @@ def send_single_notification(doc_ref, token, is_array, token_type, title, body, 
 
         # iOS/APNs config - Properly structured for iOS
         aps_alert = messaging.ApsAlert(
-            title=title,
-            body=body
+            title=personalized_title,
+            body=personalized_body
         )
         aps = messaging.Aps(
             alert=aps_alert,
@@ -279,9 +307,6 @@ def send_single_notification(doc_ref, token, is_array, token_type, title, body, 
         apns_topic = os.getenv("APNS_TOPIC") or os.getenv("IOS_BUNDLE_ID")
         if apns_topic:
             apns_headers["apns-topic"] = apns_topic
-        else:
-            # Warning: iOS notifications may fail without bundle ID
-            st.warning("⚠️ iOS Bundle ID not set! Set IOS_BUNDLE_ID in .env for iOS notifications")
 
         apns_config = messaging.APNSConfig(
             payload=apns_payload,
@@ -379,10 +404,10 @@ def send_notifications_parallel(title, body, tokens, batch_size=100, max_workers
         
         st.write(f"🔍 Debug: Processing batch of {len(batch_tokens)} tokens")
         
-        for doc_ref, token, is_array, token_type in batch_tokens:
+        for doc_ref, token, is_array, token_type, name in batch_tokens:
             try:
                 success, response, error_info = send_single_notification(
-                    doc_ref, token, is_array, token_type, title, body, click_action, route, screen, campaign_id, campaign_name, cohort_tags
+                    doc_ref, token, is_array, token_type, title, body, click_action, route, screen, campaign_id, campaign_name, cohort_tags, name
                 )
             except Exception as e:
                 st.write(f"🔍 Debug: Exception in send_single_notification: {str(e)}")
@@ -803,12 +828,14 @@ with tab1:
             st.session_state['test_body'] = ""
     
     # Title input
+    st.info("💡 **Use placeholders:** `{name}` for full name (e.g., 'Shameer K'), `{firstname}` for first name only (e.g., 'Shameer')")
+    
     title = st.text_input(
         "📌 Title", 
         value=st.session_state.get('test_title', ''),
         max_chars=100,
-        placeholder="Enter notification title...",
-        help="Max 100 characters"
+        placeholder="e.g., Hi {firstname}, New Properties Available!",
+        help="Max 100 characters. Use {name} or {firstname} for personalization"
     ).strip()
     
     # Body input
@@ -817,8 +844,8 @@ with tab1:
         value=st.session_state.get('test_body', ''),
         height=100, 
         max_chars=500,
-        placeholder="Enter notification message...",
-        help="Max 500 characters"
+        placeholder="Hey {name}, check out these amazing properties just for you!",
+        help="Max 500 characters. Use {name} or {firstname} for personalization"
     ).strip()
     
     # Campaign name input
@@ -832,6 +859,18 @@ with tab1:
     if title or body:
         st.markdown("---")
         st.markdown("### 👀 Preview")
+        
+        # Show personalization example if placeholders are used
+        if '{name}' in title or '{name}' in body or '{firstname}' in title or '{firstname}' in body:
+            example_name = "Shameer K"
+            example_firstname = "Shameer"
+            personalized_title = title.replace('{name}', example_name).replace('{firstname}', example_firstname)
+            personalized_body = body.replace('{name}', example_name).replace('{firstname}', example_firstname)
+            
+            st.success(f"✨ **Personalized for 'Shameer K':**")
+            st.info(f"**Title:** {personalized_title}  \n**Message:** {personalized_body}")
+            st.caption("Each recipient will see their own name instead of 'Shameer K'")
+            st.markdown("---")
         
         col1, col2 = st.columns(2)
         
