@@ -2939,5 +2939,254 @@
     "total_failed": 17,
     "total_recipients": 160,
     "duration_seconds": 29.99
+  },
+  {
+    "campaign_id": "campaign_20251121_171317",
+    "campaign_name": "hi {firstname}",
+    "title": "hi {firstname}",
+    "body": "its working  : )",
+    "cohorts": [
+      "Test"
+    ],
+    "logic": "OR",
+    "timestamp": "2025-11-21T17:13:22.820031",
+    "total_sent": 2,
+    "total_failed": 0,
+    "total_recipients": 2,
+    "duration_seconds": 0.7
+  },
+  {
+    "campaign_id": "campaign_20251121_173902",
+    "campaign_name": "hi {name}",
+    "title": "hi {name}",
+    "body": "testing it",
+    "cohorts": [
+      "Manual Input"
+    ],
+    "logic": "OR (any)",
+    "timestamp": "2025-11-21T17:39:08.242265",
+    "total_sent": 1,
+    "total_failed": 0,
+    "total_recipients": 1,
+    "duration_seconds": 0.36
+  },
+  {
+    "campaign_id": "campaign_20251121_192408",
+    "campaign_name": "{firstname}, Prestige City 2.0 report is live now \ud83d\udd25",
+    "title": "{firstname}, Prestige City 2.0 report is live now \ud83d\udd25",
+    "body": "Clean analysis, full details, and your branding on top. Text your KAM to grab it.",
+    "timestamp": "2025-11-21T19:24:10.359311",
+    "total_sent": 1,
+    "success": 1,
+    "failed": 0,
+    "cohorts": [
+      "Manual Input"
+    ],
+    "logic_type": "OR (any)"
+  },
+  {
+    "campaign_id": "campaign_20251121_192453",
+    "campaign_name": "{firstname}, Prestige City 2.0 report is live now \ud83d\udd25",
+    "title": "{firstname}, Prestige City 2.0 report is live now \ud83d\udd25",
+    "body": "Clean analysis, full details, and your branding on top. Text your KAM to grab it.",
+    "timestamp": "2025-11-21T19:26:01.579339",
+    "total_sent": 408,
+    "success": 341,
+    "failed": 67,
+    "cohorts": [
+      "East Bangalore"
+    ],
+    "logic_type": "OR (any)"
+  },
+  {
+    "campaign_id": "campaign_20251121_192635",
+    "campaign_name": "{firstname}, Sattva Lumina report is live now \ud83d\udd25",
+    "title": "{firstname}, Sattva Lumina report is live now \ud83d\udd25",
+    "body": "Clean analysis, full details, and your branding on top. Text your KAM to grab it.",
+    "timestamp": "2025-11-21T19:27:33.387555",
+    "total_sent": 276,
+    "success": 235,
+    "failed": 41,
+    "cohorts": [
+      "North Bangalore"
+    ],
+    "logic_type": "OR (any)"
+  },
+  {
+    "campaign_id": "campaign_20251121_192830",
+    "campaign_name": "{firstname}, Provident Manchester report is live now \ud83d\udd25",
+    "title": "{firstname}, Provident Manchester report is live now \ud83d\udd25",
+    "body": "Clean analysis, full details, and your branding on top. Text your KAM to grab it.",
+    "timestamp": "2025-11-21T19:28:31.943309",
+    "total_sent": 1,
+    "success": 1,
+    "failed": 0,
+    "cohorts": [
+      "Central Bangalore",
+      "Pan Bangalore",
+      "South Bangalore",
+      "West Bangalore"
+    ],
+    "logic_type": "AND (all)"
+  },
+  {
+    "campaign_id": "campaign_20251121_192849",
+    "campaign_name": "{firstname}, Provident Manchester report is live now \ud83d\udd25",
+    "title": "{firstname}, Provident Manchester report is live now \ud83d\udd25",
+    "body": "Clean analysis, full details, and your branding on top. Text your KAM to grab it.",
+    "timestamp": "2025-11-21T19:29:52.221706",
+    "total_sent": 320,
+    "success": 282,
+    "failed": 38,
+    "cohorts": [
+      "Central Bangalore",
+      "Pan Bangalore",
+      "South Bangalore",
+      "West Bangalore"
+    ],
+    "logic_type": "OR (any)"
+  },
+  {
+    "campaign_id": "campaign_20251122_085444",
+    "campaign_name": "Hey {firstname}, weekend\u2019s here. Any site visits on your list?",
+    "title": "Hey {firstname}, weekend\u2019s here. Any site visits on your list?",
+    "body": "If not, no stress. Pick a few properties and schedule visits today \ud83d\udd25",
+    "timestamp": "2025-11-22T08:55:30.152957",
+    "total_sent": 1036,
+    "success": 885,
+    "failed": 151,
+    "cohorts": [
+      "All Agents"
+    ],
+    "logic_type": "OR (any)"
+  },
+  {
+    "campaign_id": "campaign_20251122_125618",
+    "campaign_name": "North Bangalore Has Fresh Listings \ud83d\udc40",
+    "title": "North Bangalore Has Fresh Listings \ud83d\udc40",
+    "body": "Yelahanka, Jakkur, Thanisandra and Devanahalli all got new units this week. Good picks across apartments, villas and plots. Worth a quick look.",
+    "timestamp": "2025-11-22T12:56:50.265607",
+    "total_sent": 276,
+    "success": 235,
+    "failed": 41,
+    "cohorts": [
+      "North Bangalore"
+    ],
+    "logic_type": "OR (any)"
+  },
+  {
+    "campaign_id": "campaign_20251122_125700",
+    "campaign_name": "South Bangalore Update \ud83d\udd25",
+    "title": "South Bangalore Update \ud83d\udd25",
+    "body": "JP Nagar, Bilekahalli, Banashankari and Uttarahalli just saw new houses and apartments go live. Clean pricing and strong demand in this belt.",
+    "timestamp": "2025-11-22T12:57:22.239659",
+    "total_sent": 133,
+    "success": 117,
+    "failed": 16,
+    "cohorts": [
+      "South Bangalore"
+    ],
+    "logic_type": "OR (any)"
+  },
+  {
+    "campaign_id": "campaign_20251122_125754",
+    "campaign_name": "East Bangalore Just Got New Options \u26a1",
+    "title": "East Bangalore Just Got New Options \u26a1",
+    "body": "Varthur, Panathur, Whitefield, Chikkakannalli and Kadubeesanahalli all have fresh 2, 3 and 4 BHK listings today. High-demand corridor.",
+    "timestamp": "2025-11-22T12:58:28.771897",
+    "total_sent": 408,
+    "success": 341,
+    "failed": 67,
+    "cohorts": [
+      "East Bangalore"
+    ],
+    "logic_type": "OR (any)"
+  },
+  {
+    "campaign_id": "campaign_20251122_125830",
+    "campaign_name": "New West Bangalore Picks \ud83d\udccc",
+    "title": "New West Bangalore Picks \ud83d\udccc",
+    "body": "RR Nagar, Nagarabhavi, Kengeri and nearby pockets have new independent houses and plots added. Good value zone right now.",
+    "timestamp": "2025-11-22T12:58:33.454916",
+    "total_sent": 19,
+    "success": 18,
+    "failed": 1,
+    "cohorts": [
+      "West Bangalore"
+    ],
+    "logic_type": "OR (any)"
+  },
+  {
+    "campaign_id": "campaign_20251122_125834",
+    "campaign_name": "Central Bangalore Has A New Drop \u2728",
+    "title": "Central Bangalore Has A New Drop \u2728",
+    "body": "Shanthi Nagar and surrounding central pockets got premium apartment listings today. Rare central inventory.",
+    "timestamp": "2025-11-22T12:58:39.479020",
+    "total_sent": 11,
+    "success": 7,
+    "failed": 4,
+    "cohorts": [
+      "Central Bangalore"
+    ],
+    "logic_type": "OR (any)"
+  },
+  {
+    "campaign_id": "campaign_20251122_125854",
+    "campaign_name": "New Listings Across Bangalore \ud83c\udf1f",
+    "title": "New Listings Across Bangalore \ud83c\udf1f",
+    "body": "From Balagere to Begur, Sarjapur to JP Nagar, fresh units are live across the city. Mix of apartments, plots and villas ready to explore.",
+    "timestamp": "2025-11-22T12:59:13.761450",
+    "total_sent": 160,
+    "success": 143,
+    "failed": 17,
+    "cohorts": [
+      "Pan Bangalore"
+    ],
+    "logic_type": "OR (any)"
+  },
+  {
+    "campaign_id": "campaign_20251122_152346",
+    "campaign_name": "{firstname}, Prestige Raintree Park report is live now \ud83d\udd25",
+    "title": "{firstname}, Prestige Raintree Park report is live now \ud83d\udd25",
+    "body": "Clean analysis, full details, and your branding on top. Text your KAM to grab it.",
+    "timestamp": "2025-11-22T15:24:19.641773",
+    "total_sent": 408,
+    "success": 341,
+    "failed": 67,
+    "cohorts": [
+      "East Bangalore"
+    ],
+    "logic_type": "OR (any)"
+  },
+  {
+    "campaign_id": "campaign_20251122_152441",
+    "campaign_name": "{firstname}, Embassy Greenshore report is live now \ud83d\udd25",
+    "title": "{firstname}, Embassy Greenshore report is live now \ud83d\udd25",
+    "body": "Clean analysis, full details, and your branding on top. Text your KAM to grab it.",
+    "timestamp": "2025-11-22T15:25:12.994772",
+    "total_sent": 276,
+    "success": 235,
+    "failed": 41,
+    "cohorts": [
+      "North Bangalore"
+    ],
+    "logic_type": "OR (any)"
+  },
+  {
+    "campaign_id": "campaign_20251122_152539",
+    "campaign_name": "{firstname}, Assetz Meru & Meadow report is live now \ud83d\udd25",
+    "title": "{firstname}, Assetz Meru & Meadow report is live now \ud83d\udd25",
+    "body": "Clean analysis, full details, and your branding on top. Text your KAM to grab it.",
+    "timestamp": "2025-11-22T15:26:06.338710",
+    "total_sent": 320,
+    "success": 282,
+    "failed": 38,
+    "cohorts": [
+      "Central Bangalore",
+      "Pan Bangalore",
+      "South Bangalore",
+      "West Bangalore"
+    ],
+    "logic_type": "OR (any)"
   }
 ]
